@@ -22,14 +22,14 @@ document.body.appendChild(renderer.domElement);
 
 // создание геометрии
 var geometry = new THREE.BoxGeometry(cube_size, cube_size, cube_size);
-var material = new THREE.MeshBasicMaterial({ color: 0xfafafa });
+var material = new THREE.MeshBasicMaterial({ color: 0x000000 });
 var cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
 
 // добавление контуров для куба
 const edges = new THREE.EdgesGeometry( geometry );
-const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color:  0xffffff } ) );
+const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color:  0xfafafa } ) );
 line.material.linewidth = 2; // optional
 scene.add( line );
 
