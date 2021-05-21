@@ -26,6 +26,16 @@ var material = new THREE.MeshBasicMaterial({ color: 0xfafafa });
 var cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
+
+// добавление контуров для куба
+const edges = new THREE.EdgesGeometry( geometry );
+const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color:  0xffffff } ) );
+line.material.linewidth = 2; // optional
+scene.add( line );
+
+// изменение цвета фона 
+scene.background = new THREE.Color( 0xD0D0D0 );
+
 // определение положения камеры
 camera.position.set(0, 100, 1000);
 controls.update();
