@@ -4,8 +4,8 @@ import { GLTFLoader } from './gltf-loader.three.module.js';
 
 // значение для canvas по умолчанию
 const fov = 75;
-const width = window.innerWidth;
-const height = window.innerHeight;
+const width = window.innerWidth * 0.8;
+const height = window.innerHeight * 0.889;
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
@@ -18,13 +18,11 @@ var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
 var controls = new OrbitControls(camera, renderer.domElement);
-document.body.appendChild(renderer.domElement);
-
-// изменение цвета фона
-scene.background = new THREE.Color(0xd0d0d0);
+let viewerBox = document.getElementById('viewer');
+viewerBox.appendChild(renderer.domElement);
 
 // определение положения камеры
-camera.position.set(0, 100, 1000);
+camera.position.set(0, 0, 1000);
 controls.update();
 
 // создание куба
@@ -36,7 +34,6 @@ scene.add(cube);
 // добавление контуров для куба
 let edges = new THREE.EdgesGeometry(geometry);
 let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-contour.material.linewidth = 2;
 scene.add(contour);
 
 // создание менеджера загруки моделей
@@ -71,7 +68,6 @@ loader.load('./models/pacman.glb', function (gltf) {
     // создание контура для пакмана
     let edges = new THREE.EdgesGeometry(pacman.geometry);
     let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0x00ff00 }));
-    contour.material.linewidth = 2;
     pacman.add(contour);
 
     scene.add(pacman);

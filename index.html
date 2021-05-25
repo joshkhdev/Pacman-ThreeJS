@@ -6,9 +6,75 @@
     <title>Pacman Three.js</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com/%22%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="container">
+        <div class="game">
+            <div class="game__top-bar">
+                <div class="game__gui">
+                    <span class="game__score" id="score">
+                        Счет: 0
+                    </span>
+                    <div class="game__controls">
+                        <button class="game__btn" id="newGame">Новая игра</button>
+                    </div>
+                </div>
+            </div>
+            <div class="game__viewer">
+                <div id="viewer"></div>
+            </div>
+            <div class="game__instruction">
+                <h2 class="instruction__title">Игра "Pacman-Forge"</h2>
+                <p class="instruction__content">3D игра, основанная на оригинальном Pacman.
+                    Главной составляющей является куб, на каждой грани которого располагается игровое поле с Pacman и
+                    призраками. Границы полей связаны, то есть происходит переход между гранями при выходе за пределы
+                    этих границ. На полях имеется еда для зарабатывания очков.
+                </p>
+                <p class="instruction__content">
+                    Цель игры - собрать всю еду на кубе, при этом если Pacman попадется на приведение и потеряет все
+                    жизни - проигрыш.
+                </p>
+                <p class="instruction__content instruction__content_t-center">
+                    Кнопки управления:
+                </p>
+                <div class="keys">
+                    <div class="keys__item key-up">
+                        <button class="keys__btn">W</button>
+                    </div>
+                    <div class="keys__item key-left">
+                        <button class="keys__btn">A</button>
+                    </div>
+                    <div class="keys__item key-down">
+                        <button class="keys__btn">S</button>
+                    </div>
+                    <div class="keys__item key-right">
+                        <button class="keys__btn">D</button>
+                    </div>
+                </div>
+                <p class="instruction__content instruction__content_t-center">
+                    Или:
+                </p>
+                <div class="keys">
+                    <div class="keys__item key-up">
+                        <button class="keys__btn">&#9650;</button>
+                    </div>
+                    <div class="keys__item key-left">
+                        <button class="keys__btn">&#9664;</button>
+                    </div>
+                    <div class="keys__item key-down">
+                        <button class="keys__btn">&#9660;</button>
+                    </div>
+                    <div class="keys__item key-right">
+                        <button class="keys__btn">&#9654;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="scripts/three.module.js"></script>
     <script type="module" src="scripts/orbit-controls.three.module.js"></script>
     <script type="module" src="scripts/gltf-loader.three.module.js"></script>
