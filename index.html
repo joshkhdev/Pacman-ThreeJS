@@ -13,7 +13,7 @@
 <body>
     <div class="container">
         <div class="game">
-            <div class="game__top-bar">
+            <div class="game__top-bar" id="top-bar">
                 <div class="game__gui">
                     <span class="game__score" id="score">
                         Счет: 0
@@ -26,7 +26,7 @@
             <div class="game__viewer">
                 <div id="viewer"></div>
             </div>
-            <div class="game__instruction">
+            <div class="game__instruction" id="instruction">
                 <h2 class="instruction__title">Игра "Pacman-Forge"</h2>
                 <p class="instruction__content">3D игра, основанная на оригинальном Pacman.
                     Главной составляющей является куб, на каждой грани которого располагается игровое поле с Pacman и
@@ -79,6 +79,7 @@
     <script type="module" src="scripts/orbit-controls.three.module.js"></script>
     <script type="module" src="scripts/gltf-loader.three.module.js"></script>
     <script type="module" src="scripts/main.js"></script>
+    <script type="module" src="scripts/game.js"></script>
 </body>
 
 </html>
