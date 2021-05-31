@@ -233,10 +233,10 @@ export interface Level {
 }
 
 export const MAP: Level[] = [
-    { grid: FrontLevel, offset: { x: 0, y: 0, z: Params.CubeSize }, rotation: { x: 0, y: 0, z: 0 }, color: '#c2b853' },
-    { grid: BackLevel, offset: { x: 0, y: 0, z: -Params.CubeSize - Params.Depth }, rotation: { x: 0, y: 0, z: 0 }, color: '#ee0300' },
-    { grid: RightLevel, offset: { x: Params.CubeSize, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, color: '#5036d9' },
-    { grid: LeftLevel, offset: { x: -Params.CubeSize - Params.Depth, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, color: '#359c9c' },
-    { grid: TopLevel, offset: { x: 0, y: Params.CubeSize + Params.Depth, z: 0 }, rotation: { x: Math.PI / 2, y: 0, z: 0 }, color: '#cb569a' },
-    { grid: DownLevel, offset: { x: 0, y: -Params.CubeSize, z: 0 }, rotation: { x: Math.PI / 2, y: 0, z: 0 }, color: '#09bd77' },
+    { grid: FrontLevel, offset: { x: 0, y: 0, z: Params.CubeSize / 2 }, rotation: { x: 0, y: 0, z: 0 }, color: '#c2b853' },
+    { grid: BackLevel, offset: { x: 0, y: 0, z: -Params.CubeSize / 2 - Params.Depth }, rotation: { x: 0, y: 0, z: 0 }, color: '#ee0300' },
+    { grid: RightLevel, offset: { x: Params.CubeSize / 2, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, color: '#5036d9' },
+    { grid: LeftLevel, offset: { x: -Params.CubeSize / 2 - Params.Depth, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, color: '#359c9c' },
+    { grid: TopLevel, offset: { x: 0, y: Params.CubeSize / 2 + Params.Depth, z: 0 }, rotation: { x: Math.PI / 2, y: 0, z: 0 }, color: '#cb569a' },
+    { grid: DownLevel, offset: { x: 0, y: -Params.CubeSize / 2, z: 0 }, rotation: { x: Math.PI / 2, y: 0, z: 0 }, color: '#09bd77' },
 ];
