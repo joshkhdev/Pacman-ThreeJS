@@ -7,7 +7,7 @@ import { Objects, Params } from './entity.js';
 // значение для canvas по умолчанию
 const fov = 75;
 const width = window.innerWidth * 0.8;
-const height = window.innerHeight - document.getElementById('top-bar').offsetHeight;
+const height = window.innerHeight * 0.85;
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
