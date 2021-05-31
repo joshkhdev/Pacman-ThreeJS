@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "watch": true
+  },
+  "files": [
+    "levels.ts",
+    "entity.ts",
+    "ghosts.ts",
+    "pacman.ts",
+    "game.ts"
+  ]
+}
