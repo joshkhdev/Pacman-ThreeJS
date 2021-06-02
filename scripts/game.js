@@ -1,13 +1,42 @@
 import * as THREE from './three.module.js';
 import { MAP } from './levels.js';
 import { Params } from './entity.js';
+class Dot {
+    i;
+    j;
+    mesh;
+    constructor(i, j, mesh) {
+        this.i = i;
+        this.j = j;
+        if (!!mesh)
+            this.mesh = mesh; // Проверка на undefined
+    }
+    setMesh(mesh) {
+        this.mesh = mesh;
+    }
+    getMesh() {
+        return this.mesh;
+    }
+    getX() {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let x = this.j * Params.WallSize - (radius - delta);
+        return x;
+    }
+    getY() {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let y = -this.i * Params.WallSize + (radius - delta);
+        return y;
+    }
+}
 export class Game {
     curLevel;
     map;
     dotsArray;
-    curDot;
-    geometry;
-    dotMaterial;
+    curDot; // А нужен ли этот параметр?
+    geometry; // А нужен ли этот параметр?
+    dotMaterial; // А нужен ли этот параметр?
     grid;
     score;
     scoreText;
@@ -95,5 +124,20 @@ export class Game {
     }
     setLevel(level) {
         this.curLevel = level;
+    }
+    /*public setLevel(level: LevelType) { // TODO: Переход на другой уровень
+        this.switchLevel();
+    }*/
+    getMap() {
+        return this.map;
+    }
+    getDotsArray() {
+        return this.dotsArray;
+    }
+    setDotsArray(dots) {
+        this.dotsArray = [];
+        for (let dot of dots) {
+            this.dotsArray.push(dot);
+        }
     }
 }

@@ -42,7 +42,7 @@ var game = new Game();
 drawWalls(game);
 
 function drawWalls(game) {
-    for (let level of game.map)
+    for (let level of game.getMap())
     {
         let walls = game.findObjects(Objects.wall, level.grid); // Поиск всех блоков стен
         let checkedCells = new Array();
@@ -69,6 +69,9 @@ function drawWalls(game) {
                 let wallMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: level.color, }));
                 wallMesh.position.set(level.offset.x, level.offset.y, level.offset.z);
                 wallMesh.rotation.setFromVector3(new THREE.Vector3(level.rotation.x, level.rotation.y, level.rotation.z));
+                let edges = new THREE.EdgesGeometry(geometry);
+                let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa })); // TODO: Удалить сетку на котнурах
+                wallMesh.add(contour);
                 scene.add(wallMesh);
             }        
         }
@@ -145,33 +148,33 @@ function checkPointToSkip(tempWall, x, y) { // Пропуск точек вну�
     return tempWall.some(item => item.x == x && item.y == y);
 }
 
-function drawPath(figure) {
-    let head = figure[0];
+function drawPath(wall) {
+    let head = wall[0];
     let shape = new THREE.Shape();
     shape.moveTo(head.x, head.y);
-    checkPath(head, figure, shape);
+    checkPath(head, wall, shape);
     return shape;
 }
 
-function checkPath(head, figure, shape) {
-    let top = findPointAround(head.x, head.y + Params.WallSize, figure);
-    let right = findPointAround(head.x + Params.WallSize, head.y, figure);
-    let left = findPointAround(head.x - Params.WallSize, head.y, figure);
-    let down = findPointAround(head.x, head.y - Params.WallSize, figure);
+function checkPath(head, wall, shape) {
+    let top = findPointAround(head.x, head.y + Params.WallSize, wall);
+    let right = findPointAround(head.x + Params.WallSize, head.y, wall);
+    let left = findPointAround(head.x - Params.WallSize, head.y, wall);
+    let down = findPointAround(head.x, head.y - Params.WallSize, wall);
 
     let pointsAround = [right, down, left, top];
     for (let item of pointsAround) {
         if (!!item) { // Проверка на undefined
-            figure.splice(figure.indexOf(item), 1);
+            wall.splice(wall.indexOf(item), 1);
             shape.lineTo(item.x, item.y);
-            checkPath(item, figure, shape);
+            checkPath(item, wall, shape);
             break;
         }
     }
 }
 
-function findPointAround(x, y, figure) {
-    return figure.find(item => item.x == x && item.y == y);
+function findPointAround(x, y, wall) {
+    return wall.find(item => item.x == x && item.y == y);
 }
 
 // создание менеджера загруки моделей
@@ -204,7 +207,25 @@ loader.load('./models/pacman.glb', function (gltf) {
     pacman.position.set(0, 0, Params.CubeSize / 2 + pacman_size);
 
     // создание контура для пакмана
-    // TODO:
+    let curve = new THREE.EllipseCurve(0, 0, 1, 1, 2.15, -2.32 * Math.PI, false, 1);
+    let points = curve.getPoints(50);
+    geometry = new THREE.BufferGeometry().setFromPoints(points);
+    material = new THREE.LineBasicMaterial({color: '#000000'});
+    let ellipse = new THREE.Line(geometry, material);
+    ellipse.rotateY(Math.PI);
+    ellipse.rotateX(7/4 * Math.PI);
+    let ellipse2 = new THREE.Line(geometry, material);
+    ellipse2.rotateY(-2 * Math.PI);
+    ellipse2.rotateX(3/4 * Math.PI);
+    pacman.add(ellipse);
+    pacman.add(ellipse2);
+    material = new THREE.LineBasicMaterial({ color: '#000000' });
+    points = [];
+    points.push(new THREE.Vector3(- 1.01, 0, -0.02));
+    points.push(new THREE.Vector3(1.01, 0, -0.02));
+    geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var line = new THREE.Line(geometry, material);
+    pacman.add(line);
 
     scene.add(pacman);
 }, undefined, function (error) {

@@ -4,19 +4,43 @@ import { Objects, Params } from './entity.js';
 import { Pacman } from './pacman.js';
 import { Blinky, Pinky, Inky, Clyde } from './ghosts.js';
 
-interface Dot {
-    i: number,
-    j: number,
-    mesh: THREE.Mesh,
+class Dot {
+    public readonly i: number;
+    public readonly j: number;
+    private mesh: THREE.Mesh;
+
+    constructor(i: number, j: number, mesh?: THREE.Mesh) {
+        this.i = i;
+        this.j = j;
+        if (!!mesh) this.mesh = mesh; // Проверка на undefined
+    }
+    public setMesh(mesh: THREE.Mesh) {
+        this.mesh = mesh;
+    }
+    public getMesh() {
+        return this.mesh;
+    }
+    public getX() {
+        let delta = Params.CellSize / 2;
+	    let radius = Params.CubeSize / 2;
+	    let x = this.j * Params.WallSize - (radius - delta);
+        return x;
+    }
+    public getY() {
+        let delta = Params.CellSize / 2;
+	    let radius = Params.CubeSize / 2;
+        let y = -this.i * Params.WallSize + (radius - delta);
+        return y;
+    }
 }
 
 export class Game {
     private curLevel: Level;
-    public map: Level[];
-    public dotsArray: Dot[];
-    public curDot: number;
-    public geometry: any;
-    public dotMaterial: any;
+    private readonly map: Level[];
+    private dotsArray: Dot[];
+    private curDot: number; // А нужен ли этот параметр?
+    public geometry: any; // А нужен ли этот параметр?
+    public dotMaterial: any; // А нужен ли этот параметр?
     public grid: number[][];
     public score: number;
     public scoreText: HTMLElement;
@@ -119,4 +143,17 @@ export class Game {
     /*public setLevel(level: LevelType) { // TODO: Переход на другой уровень
         this.switchLevel();
     }*/
+    public getMap() {
+        return this.map;
+    }
+    public getDotsArray() {
+        return this.dotsArray;
+    }
+    public setDotsArray(dots: Dot[]) {
+        this.dotsArray = [];
+        for (let dot of dots) {
+            this.dotsArray.push(dot);
+        }
+    }
+    
 }
