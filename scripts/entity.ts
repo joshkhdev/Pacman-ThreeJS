@@ -5,7 +5,7 @@ export type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
 export const Params = {
     CellSize: 20,
     CubeSize: 500,
-    WallSize: 20,
+    WallSize: 18,
     Depth: 20,
     Rows: 25,
     Cols: 25

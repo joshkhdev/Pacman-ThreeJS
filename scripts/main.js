@@ -40,6 +40,7 @@ scene.add(contour);
 // загрузка стен уровня
 var game = new Game();
 drawLevelWalls(game);
+drawLevelDots(game);
 
 function drawLevelWalls(game) {
     let levelWalls = game.drawWalls();
@@ -52,6 +53,19 @@ function drawLevelWalls(game) {
             walls.add(contour);
             scene.add(walls);
         }  
+    }
+}
+
+function drawLevelDots(game) {
+    let levelDots = game.drawDots();
+    for (let level of levelDots)
+    {
+        for (let dot of level.dots)
+        {
+            scene.add(dot.mesh);
+            //dot.mesh.rotation.copy(game.map[level.name].rotation); // TODO
+            console.log(dot);
+        }
     }
 }
 
