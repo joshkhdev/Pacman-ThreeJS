@@ -1,8 +1,25 @@
-import * as THREE from './three.module.js';
+import * as THREE from './lib/three.module.js';
 import { Level, MAP, LevelType } from './levels.js';
 import { Objects, Params } from './entity.js';
 import { Pacman } from './pacman.js';
 import { Blinky, Pinky, Inky, Clyde } from './ghosts.js';
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+interface Index {
+    i: number;
+    j: number;
+}
+
+/*interface Wall {
+    i: number;
+    j: number;
+    corners: Point[];
+    center: { x: number, y: number; };
+}*/
 
 class Dot {
     public readonly i: number;
@@ -51,6 +68,7 @@ export class Game {
         this.dotMaterial = new THREE.MeshLambertMaterial({ color: '#FFFFFF' });
         this.score = 0;
         this.scoreText = document.getElementById('score');
+        this.setDotsArray(this.findObjects(Objects.dot, this.curLevel.grid));
     }
 
     public async initGame() {
@@ -138,20 +156,22 @@ export class Game {
         for (let level of this.getMap())
         {
             let walls = this.findObjects(Objects.wall, level.grid); // Поиск всех блоков стен
-            let checkedCells = new Array();
-            this.clearCheckedCells(checkedCells);
-            let tempWall = [];
+            let checkedCells = []; this.clearCheckedCells(checkedCells);
             let wallMeshes = [];
+            let tempWall: Point[] = [];
             for (let block of walls) // Обход по каждому блоку стены
             {
                 let i = block.i; let j = block.j;
                 if (level.grid[i][j] != checkedCells[i][j]) {
-                    checkedCells[i][j] = Objects.wall;
-                    this.tempWallAdd(tempWall, i, j);
-                    //this.follow(level.grid, 'left', i, j, tempWall, checkedCells); // Не работает
-                    //this.follow(level.grid, 'right', i, j, tempWall, checkedCells); // Не работает
+                    //checkedCells[i][j] = Objects.wall;
+                    this.tempWallAdd(tempWall, i, j, level.grid, checkedCells);
+
+                    //this.follow(level.grid, 'left', i, j, tempWall, checkedCells);
+                    //this.follow(level.grid, 'right', i, j, tempWall, checkedCells);
+                    
     
-                    let wall = this.truncateWall(tempWall);
+                    //let wall = this.truncateWall(tempWall);
+                    let wall = tempWall;
                     tempWall = [];
                     let shape = this.drawPath(wall);
                     let extrudeSettings = {
@@ -173,10 +193,10 @@ export class Game {
     
     public clearCheckedCells(checkedCells) {
         for (let i = 0; i < Params.Rows; i++)
-            checkedCells[i] = new Array();
+            checkedCells[i] = [];
     }
     
-    private tempWallAdd(tempWall, i, j) {
+    /*private tempWallAdd(tempWall: Point[], i: number, j: number) {
         let delta = Params.CellSize / 2;
         let radius = Params.CubeSize / 2;
         let center = { x: j * Params.WallSize - (radius - delta), y: -i * Params.WallSize + (radius - delta)}
@@ -184,9 +204,141 @@ export class Game {
         tempWall.push({ x: center.x + delta, y: center.y + delta }); // right top 
         tempWall.push({ x: center.x + delta, y: center.y - delta }); // right bottom
         tempWall.push({ x: center.x - delta, y: center.y - delta }); // left bottom
+    }*/
+    private tempWallAdd(tempWall: Point[], i: number, j: number, level: number[][], checkedCells: Objects[][]) {
+        if (level[i][j] == checkedCells[i][j]) {
+            console.log(true);
+            return;
+        }
+        checkedCells[i][j] = Objects.wall;
+
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let center = { x: j * Params.WallSize - (radius - delta), y: -i * Params.WallSize + (radius - delta)}
+        //let corners: Point[] = [];
+        let directions = this.findObjectsAround(this.curLevel.grid, i, j, Objects.wall);
+
+        let left: boolean = directions.includes('left');
+        let right: boolean = directions.includes('right');
+        let up: boolean = directions.includes('up');
+        let down: boolean = directions.includes('down');
+
+        let lt: Point = { x: center.x - delta, y: center.y + delta }; // left top 
+        let rt: Point = { x: center.x + delta, y: center.y + delta }; // right top
+        let rb: Point = { x: center.x + delta, y: center.y - delta }; // right bottom
+        let lb: Point = { x: center.x - delta, y: center.y - delta }; // left bottom
+
+        if (left && right && up && down)
+        {
+            tempWall.push(lt); // left top 
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            tempWall.push(rt); // right top
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            tempWall.push(rb); // right bottom
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            tempWall.push(lb); // left bottom
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (left && right && up) {
+            tempWall.push(lt); // left top
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            tempWall.push(rt); // right top
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (down) {
+            tempWall.push(lt); // left top 
+            tempWall.push(rt); // right top
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            return;
+        }
+        if (left && right && down) {
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            tempWall.push(rb); // right bottom
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            tempWall.push(lb); // left bottom
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (up) {
+            tempWall.push(rb); // right bottom
+            tempWall.push(lb); // left bottom
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            return;
+        }
+        if (left && up && down) { // TODO
+            tempWall.push(lt); // left top
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            tempWall.push(lb); // left bottom
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (right) { // TODO
+            tempWall.push(lt); // left top
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            tempWall.push(lb); // left bottom
+            return;
+        }
+        if (right && up && down) {
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            tempWall.push(rt); // right top 
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            tempWall.push(rb); // right bottom
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            return;
+        }
+        if (left) {
+            tempWall.push(rt); // right top 
+            tempWall.push(rb); // right bottom
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (left && up) {
+            tempWall.push(lt); // left top
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            tempWall.push(rb); // right bottom
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (right && down) {
+            tempWall.push(lt); // left top
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            tempWall.push(rb); // right bottom
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            return;
+        }
+        if (right && up) {
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            tempWall.push(rt); // right top
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            tempWall.push(lb); // left bottom
+            return;
+        }
+        if (left && down) {
+            tempWall.push(rt); // right top
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            tempWall.push(lb); // left bottom
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return;
+        }
+        if (left && right)
+        {
+            this.tempWallAdd(tempWall, i, j + 1, level, checkedCells); // right
+            this.tempWallAdd(tempWall, i, j - 1, level, checkedCells); // left
+            return; // 0
+        }
+        if (up && down)
+        {
+            this.tempWallAdd(tempWall, i - 1, j, level, checkedCells); // up
+            this.tempWallAdd(tempWall, i + 1, j, level, checkedCells); // down
+            return; // 0
+        }
     }
-    
-    private follow(level, direction, i, j, tempWall, checkedCells) { // Рекурсивный метод по сборке стены
+
+    /*private follow(level, direction, i, j, tempWall, checkedCells) { // Рекурсивный метод по сборке стены
         if (level[i][j] == Objects.wall) {
             switch (direction) {
                 case 'right':
@@ -200,18 +352,6 @@ export class Game {
                             this.follow(level, 'down', i, j, tempWall, checkedCells);
                     }
                     break;
-                case 'down':
-                    if (i + 1 < Params.CubeSize / Params.CellSize)
-                    {
-                        if (level[i + 1][j] == Objects.wall && level[i + 1][j] != checkedCells[i + 1][j]) { // Если снизу стена
-                            this.tempWallAdd(tempWall, i + 1, j);
-                            checkedCells[i + 1][j] = Objects.wall;
-                            this.follow(level, 'left', i + 1, j, tempWall, checkedCells);
-                            this.follow(level, 'down', i + 1, j, tempWall, checkedCells);
-                            this.follow(level, 'right', i + 1, j, tempWall, checkedCells);  
-                        }
-                    }
-                    break;
                 case 'left':
                     if (j - 1 >= 0)
                     {
@@ -223,11 +363,49 @@ export class Game {
                             this.follow(level, 'down', i, j, tempWall, checkedCells);
                     }
                     break;
+                case 'down':
+                    if (i + 1 < Params.CubeSize / Params.CellSize)
+                    {
+                        if (level[i + 1][j] == Objects.wall && level[i + 1][j] != checkedCells[i + 1][j]) { // Если снизу стена
+                            this.tempWallAdd(tempWall, i + 1, j);
+                            checkedCells[i + 1][j] = Objects.wall;
+                            this.follow(level, 'down', i + 1, j, tempWall, checkedCells);
+                            this.follow(level, 'left', i + 1, j, tempWall, checkedCells);
+                            this.follow(level, 'right', i + 1, j, tempWall, checkedCells);  
+                        }
+                    }
+                    break;
             }
         }
+    }*/
+
+    private groupWallArray(wallArray) {
+        let array = [];
+        // TODO
     }
     
-    private truncateWall(tempWall) {
+    private findObjectsAround(level: number[][], i: number, j: number, object: Objects) {
+        let result: string[] = [];
+        // left
+        if (j - 1 >= 0)
+            if (level[i][j - 1] == object)
+                result.push('left');
+        // right
+        if (j + 1 < Params.CubeSize / Params.CellSize)
+            if (level[i][j + 1] == object)
+                result.push('right');
+        // up
+        if (i - 1 >= 0)
+            if (level[i - 1][j] == object)
+                result.push('up');
+        // down
+        if (i + 1 < Params.CubeSize / Params.CellSize)
+            if (level[i + 1][j] == object)
+                result.push('down');
+        return result;
+    }
+
+    /*private truncateWall(tempWall) {
         let wall = [];
         for (let i = 0; i < tempWall.length; i++) {
             let count = 0;
@@ -245,10 +423,48 @@ export class Game {
         }
         return wall;
     }
-    
-    private checkPointToSkip(tempWall, x, y) { // Пропуск точек внутри фигуры
+
+    private checkPointToSkip(tempWall: Point[], x: number, y: number) { // Пропуск точек внутри фигуры
         return tempWall.some(item => item.x == x && item.y == y);
+    }*/
+    
+    /*private truncateWall(tempWall: Wall[]) {
+        let wall = [];
+        for (let block of tempWall) 
+        {
+            for (let point of block.tempWall)
+            {
+                let count = 0;
+                if (this.checkPointToSkip(tempWall, point.x, point.y + Params.WallSize))
+                    count++;
+    
+                if (this.checkPointToSkip(tempWall, point.x, point.y - Params.WallSize))
+                    count++;
+    
+                if (this.checkPointToSkip(tempWall, point.x + Params.WallSize, point.y))
+                    count++;
+    
+                if (this.checkPointToSkip(tempWall, point.x - Params.WallSize, point.y))
+                    count++;
+    
+                if (this.checkPointToSkip(tempWall, point.x - Params.WallSize, point.y + Params.WallSize) || 
+                    this.checkPointToSkip(tempWall, point.x + Params.WallSize, point.y + Params.WallSize) ||
+                    this.checkPointToSkip(tempWall, point.x + Params.WallSize, point.y - Params.WallSize) ||
+                    this.checkPointToSkip(tempWall, point.x - Params.WallSize, point.y - Params.WallSize))
+                    count++;
+    
+                if (count < 5) {
+                    wall.push(point);
+                } else console.log(point);
+            }
+        }
+        return wall;
     }
+
+    private checkPointToSkip(tempWall: Wall[], x: number, y: number) { // Пропуск точек внутри фигуры
+        return tempWall.some(item => item.x == x && item.y == y);
+    }*/
+    
     
     public drawPath(wall) {
         let head = wall[0];

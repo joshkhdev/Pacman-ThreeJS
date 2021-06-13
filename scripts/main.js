@@ -1,6 +1,6 @@
-import * as THREE from './three.module.js';
-import { OrbitControls } from './orbit-controls.three.module.js';
-import { GLTFLoader } from './gltf-loader.three.module.js';
+import * as THREE from './lib/three.module.js';
+import { OrbitControls } from './lib/orbit-controls.three.module.js';
+import { GLTFLoader } from './lib/gltf-loader.three.module.js';
 import { Game } from './game.js';
 import { Objects, Params } from './entity.js';
 
