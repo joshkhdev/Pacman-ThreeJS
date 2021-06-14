@@ -41,6 +41,7 @@ scene.add(contour);
 var game = new Game();
 drawLevelWalls(game);
 drawLevelDots(game);
+drawLevelCherries(game);
 
 function drawLevelWalls(game) {
     let levelWalls = game.drawWalls();
@@ -62,9 +63,22 @@ function drawLevelDots(game) {
     {
         for (let dot of level.dots)
         {
-            scene.add(dot.mesh);
             //dot.mesh.rotation.copy(game.map[level.name].rotation); // TODO
+            scene.add(dot.mesh);
             console.log(dot);
+        }
+    }
+}
+
+function drawLevelCherries(game) {
+    let levelCherries = game.drawCherries();
+    for (let level of levelCherries)
+    {
+        for (let cherry of level.cherries)
+        {
+            //cherry.mesh.rotation.copy(game.map[level.name].rotation); // TODO
+            scene.add(cherry.mesh);
+            console.log(cherry);
         }
     }
 }

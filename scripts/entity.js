@@ -11,9 +11,11 @@ export var Objects;
 (function (Objects) {
     Objects[Objects["blank"] = 0] = "blank";
     Objects[Objects["wall"] = 1] = "wall";
-    Objects[Objects["dynwall"] = 2] = "dynwall";
-    Objects[Objects["spawnwall"] = 3] = "spawnwall";
-    Objects[Objects["dot"] = 4] = "dot";
+    //dynwall,
+    //spawnwall,
+    Objects[Objects["dot"] = 2] = "dot";
+    Objects[Objects["cherry"] = 3] = "cherry";
+    Objects[Objects["powerup"] = 4] = "powerup";
     Objects[Objects["pacman"] = 5] = "pacman";
     Objects[Objects["blinky"] = 6] = "blinky";
     Objects[Objects["pinky"] = 7] = "pinky";

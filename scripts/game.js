@@ -30,6 +30,51 @@ class Dot {
         return y;
     }
 }
+class Cherry extends Dot {
+    static Length = 5; // x
+    static Height = 15; // y
+    static Width = 15; // z
+    constructor(i, j) {
+        super(i, j);
+        this.setMesh();
+    }
+    setMesh() {
+        let cherry_geometry = new THREE.SphereGeometry(Cherry.Length, Cherry.Height, Cherry.Width);
+        let cherry_material = new THREE.MeshBasicMaterial({ color: "#991c1c" });
+        let cherry1 = new THREE.Mesh(cherry_geometry, cherry_material);
+        let cherry2 = new THREE.Mesh(cherry_geometry, cherry_material);
+        cherry2.position.set(9, 5, 0); // ?
+        let points1 = [];
+        points1.push(new THREE.Vector3(0, Cherry.Length - 1, 0));
+        points1.push(new THREE.Vector3(0, Cherry.Height - 1, 0));
+        let pick_geometry1 = new THREE.BufferGeometry().setFromPoints(points1);
+        let pick_material = new THREE.LineBasicMaterial({ color: '#35a12d', linewidth: 5 });
+        let pick1 = new THREE.Line(pick_geometry1, pick_material);
+        cherry1.add(pick1);
+        let curve = new THREE.EllipseCurve(0, 10, 8, 9.5, 3.5, -2.32 * Math.PI, false, 1);
+        let points2 = curve.getPoints(50);
+        let pick_geometry2 = new THREE.BufferGeometry().setFromPoints(points2);
+        let pick2 = new THREE.Line(pick_geometry2, pick_material);
+        pick2.rotateY(Math.PI);
+        pick2.rotateX(2 * Math.PI);
+        cherry2.add(pick2);
+        cherry1.add(cherry2);
+        this.mesh = cherry1;
+        this.mesh.position.set(this.getX(), this.getY(), Params.Depth / 2);
+    }
+    getX() {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let x = this.j * Params.CellSize - (radius - delta) - Cherry.Length * 0.8;
+        return x;
+    }
+    getY() {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let y = -this.i * Params.CellSize + (radius - delta) - Cherry.Height / 3;
+        return y;
+    }
+}
 export class Game {
     curLevel;
     map;
@@ -70,6 +115,20 @@ export class Game {
             levelDots.push({ dots: dots, name: level.name });
         }
         return levelDots;
+    }
+    drawCherries() {
+        let cherries = [];
+        let levelCherries = [];
+        for (let level of this.levels) {
+            let indexes = this.findObjects(Objects.cherry, level.grid); // Поиск всех единиц еды
+            for (let index of indexes) {
+                let cherry = new Cherry(index.i, index.j);
+                cherry.mesh.position.add(this.map[level.name].offset);
+                cherries.push(cherry);
+            }
+            levelCherries.push({ cherries: cherries, name: level.name });
+        }
+        return levelCherries;
     }
     drawWalls() {
         let levelWalls = [];

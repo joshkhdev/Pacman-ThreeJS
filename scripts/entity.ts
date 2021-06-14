@@ -14,9 +14,11 @@ export const Params = {
 export enum Objects {
     blank,
     wall,
-    dynwall,
-    spawnwall,
+    //dynwall,
+    //spawnwall,
     dot,
+    cherry,
+    powerup,
     pacman,
     blinky,
     pinky,
