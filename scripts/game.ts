@@ -39,7 +39,7 @@ class Dot {
         let sphere = new THREE.SphereGeometry(Dot.Size, Dot.Size, Dot.Size);
         let material  = new THREE.MeshBasicMaterial({ color: '#fafafa'} );
         this.mesh = new THREE.Mesh(sphere, material);
-        this.mesh.position.set(this.getX(), this.getY(), Params.Depth / 2);
+        this.mesh.position.set(this.getX(), this.getY(), 0);
     }
     public getX() {
         let delta = Params.CellSize / 2;
@@ -88,7 +88,7 @@ class Cherry extends Dot {
         cherry2.add(pick2);
         cherry1.add(cherry2);
         this.mesh = cherry1;
-        this.mesh.position.set(this.getX(), this.getY(), Params.Depth / 2);
+        this.mesh.position.set(this.getX(), this.getY(), 0);
     }
     public getX() {
         let delta = Params.CellSize / 2;
@@ -106,7 +106,7 @@ class Cherry extends Dot {
 
 export class Game {
     private curLevel: LevelType;
-    private readonly map: Map;
+    public readonly map: Map;
     private levels: Level[];
     public score: number;
     public scoreText: HTMLElement;
@@ -145,10 +145,10 @@ export class Game {
             for (let index of indexes)
             {
                 let dot = new Dot(index.i, index.j);
-                dot.mesh.position.add(this.map[level.name].offset);
                 dots.push(dot);
             }
             levelDots.push({ dots: dots, name: level.name });
+            dots = [];
         }
         return levelDots;
     }
@@ -162,10 +162,10 @@ export class Game {
             for (let index of indexes)
             {
                 let cherry = new Cherry(index.i, index.j);
-                cherry.mesh.position.add(this.map[level.name].offset);
                 cherries.push(cherry);
             }
             levelCherries.push({ cherries: cherries, name: level.name });
+            cherries = [];
         }
         return levelCherries;
     }
@@ -388,8 +388,5 @@ export class Game {
         this.levels.push(this.map['left']);
         this.levels.push(this.map['top']);
         this.levels.push(this.map['bottom']);
-    }
-    public getMap() {
-        return this.map;
     }
 }

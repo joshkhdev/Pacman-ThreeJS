@@ -59,27 +59,59 @@ function drawLevelWalls(game) {
 
 function drawLevelDots(game) {
     let levelDots = game.drawDots();
+    let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
+    let material = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
+
+    let planes = {
+        'front': new THREE.Mesh(geometry, material),
+        'back': new THREE.Mesh(geometry, material),
+        'right': new THREE.Mesh(geometry, material),
+        'left': new THREE.Mesh(geometry, material),
+        'top': new THREE.Mesh(geometry, material),
+        'bottom': new THREE.Mesh(geometry, material)
+    }
     for (let level of levelDots)
     {
+        let name = level.name;
+        //let plane = new THREE.Mesh(geometry, material);
+        let offset = { // Добавление дополнительного смещения в половину высоты стены
+            x: game.map[name].offset.x ? (game.map[name].offset.x > 0 ? game.map[name].offset.x + Params.Depth/2 : game.map[name].offset.x - Params.Depth/2) : 0,
+            y: game.map[name].offset.y ? (game.map[name].offset.y > 0 ? game.map[name].offset.y + Params.Depth/2 : game.map[name].offset.y - Params.Depth/2) : 0,
+            z: game.map[name].offset.z ? (game.map[name].offset.z > 0 ? game.map[name].offset.z + Params.Depth/2 : game.map[name].offset.z - Params.Depth/2) : 0
+        }
+        planes[name].position.set(offset.x, offset.y, offset.z);
+        planes[name].setRotationFromEuler(new THREE.Euler(game.map[name].rotation.x, game.map[name].rotation.y, game.map[name].rotation.z));
         for (let dot of level.dots)
         {
-            //dot.mesh.rotation.copy(game.map[level.name].rotation); // TODO
-            scene.add(dot.mesh);
-            console.log(dot);
+            let mesh = dot.mesh;
+            planes[name].add(mesh.clone());
         }
+        scene.add(planes[name]);
     }
 }
 
 function drawLevelCherries(game) {
     let levelCherries = game.drawCherries();
+    let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
+    let material = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
+    
     for (let level of levelCherries)
     {
+        let name = level.name;
+        let plane = new THREE.Mesh(geometry, material);
+        let offset = { // Добавление дополнительного смещения в половину высоты стены
+            x: game.map[name].offset.x ? (game.map[name].offset.x > 0 ? game.map[name].offset.x + Params.Depth/2 : game.map[name].offset.x - Params.Depth/2) : 0,
+            y: game.map[name].offset.y ? (game.map[name].offset.y > 0 ? game.map[name].offset.y + Params.Depth/2 : game.map[name].offset.y - Params.Depth/2) : 0,
+            z: game.map[name].offset.z ? (game.map[name].offset.z > 0 ? game.map[name].offset.z + Params.Depth/2 : game.map[name].offset.z - Params.Depth/2) : 0
+        }
+        plane.position.set(offset.x, offset.y, offset.z);
+        plane.setRotationFromEuler(new THREE.Euler(game.map[name].rotation.x, game.map[name].rotation.y, game.map[name].rotation.z));
         for (let cherry of level.cherries)
         {
-            //cherry.mesh.rotation.copy(game.map[level.name].rotation); // TODO
-            scene.add(cherry.mesh);
-            console.log(cherry);
+            let mesh = cherry.mesh.clone()
+            plane.add(mesh);
         }
+        scene.add(plane);
     }
 }
 
