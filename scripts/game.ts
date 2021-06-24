@@ -106,7 +106,7 @@ class Cherry extends Dot {
 
 export class Game {
     private curLevel: LevelType;
-    private readonly map: Map;
+    public readonly map: Map;
     private levels: Level[];
     public score: number;
     public scoreText: HTMLElement;
@@ -137,6 +137,7 @@ export class Game {
         return array;
     }
 
+<<<<<<< HEAD
     public drawPacman(geometry) {
         this.pacman = new Pacman();
         // создание mesh (модели) пакмана
@@ -170,6 +171,9 @@ export class Game {
     }
 
     private drawDots() {
+=======
+    public drawDots() {
+>>>>>>> dev
         let dots: Dot[] = [];
         let levelDots: LevelDots[] = [];
         for (let level of this.levels)
@@ -186,7 +190,7 @@ export class Game {
         return levelDots;
     }
 
-    private drawCherries() {
+    public drawCherries() {
         let cherries: Cherry[] = [];
         let levelCherries: LevelCherries[] = [];
         for (let level of this.levels)
@@ -203,55 +207,8 @@ export class Game {
         return levelCherries;
     }
 
-    public drawLevelPlanes() {
-        let planesArray = [];
-        // Создаем вспомогательные плоскости
-        let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
-        let material = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
-    
-        let sides = [ 'front', 'back', 'right', 'left', 'top', 'bottom' ];
-        let planes = {};
-    
-        // Настойки параметров плоскостей
-        for (let side of sides)
-        {
-            let offset = { // Добавление дополнительного смещения в половину высоты стены
-                x: this.map[side].offset.x ? (this.map[side].offset.x > 0 ? this.map[side].offset.x + Params.Depth/2 : this.map[side].offset.x - Params.Depth/2) : 0,
-                y: this.map[side].offset.y ? (this.map[side].offset.y > 0 ? this.map[side].offset.y + Params.Depth/2 : this.map[side].offset.y - Params.Depth/2) : 0,
-                z: this.map[side].offset.z ? (this.map[side].offset.z > 0 ? this.map[side].offset.z + Params.Depth/2 : this.map[side].offset.z - Params.Depth/2) : 0
-            }
-            planes[side] = new THREE.Mesh(geometry, material);
-            planes[side].position.set(offset.x, offset.y, offset.z);
-            planes[side].setRotationFromEuler(new THREE.Euler(this.map[side].rotation.x, this.map[side].rotation.y, this.map[side].rotation.z));
-        }
-        // Добавляем на плоскости единицы еды
-        let levelDots = this.drawDots();
-        for (let level of levelDots)
-        {
-            for (let dot of level.dots)
-            {
-                planes[level.name].add(dot.mesh.clone());
-            }
-            
-        }
-        // Добавляет на плоскости вишенки
-        let levelCherries = this.drawCherries();
-        for (let level of levelCherries)
-        {
-            for (let cherry of level.cherries)
-            {
-                planes[level.name].add(cherry.mesh.clone());
-            }
-        }
-        // Добавляем плоскости на сцену
-        sides.forEach(side => {
-            planesArray.push(planes[side]);
-        });
-        return planesArray;
-    }
 
-
-    private drawWalls() {
+    public drawWalls() {
         let levelWalls = [];
         for (let level of this.levels)
         {
@@ -289,24 +246,8 @@ export class Game {
         }
         return levelWalls;
     }
-
-    public drawLevelWalls() {
-        let levelWalls = this.drawWalls();
-        let wallArray = [];
-        for (let level of levelWalls)
-        {
-            for (let walls of level)
-            {
-                let edges = new THREE.EdgesGeometry(walls.geometry);
-                let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-                walls.add(contour);
-                wallArray.push(walls);
-            }  
-        }
-        return wallArray;
-    }
     
-    private clearCheckedCells(checkedCells) {
+    public clearCheckedCells(checkedCells) {
         for (let i = 0; i < Params.Rows; i++)
             checkedCells[i] = [];
     }
