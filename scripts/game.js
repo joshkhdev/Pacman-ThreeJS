@@ -130,6 +130,44 @@ export class Game {
         }
         return levelCherries;
     }
+    drawLevelPlanes() {
+        let planesArray = [];
+        // Создаем вспомогательные плоскости
+        let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
+        let material = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.0 });
+        let sides = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+        let planes = {};
+        // Настойки параметров плоскостей
+        for (let side of sides) {
+            let offset = {
+                x: this.map[side].offset.x ? (this.map[side].offset.x > 0 ? this.map[side].offset.x + Params.Depth / 2 : this.map[side].offset.x - Params.Depth / 2) : 0,
+                y: this.map[side].offset.y ? (this.map[side].offset.y > 0 ? this.map[side].offset.y + Params.Depth / 2 : this.map[side].offset.y - Params.Depth / 2) : 0,
+                z: this.map[side].offset.z ? (this.map[side].offset.z > 0 ? this.map[side].offset.z + Params.Depth / 2 : this.map[side].offset.z - Params.Depth / 2) : 0
+            };
+            planes[side] = new THREE.Mesh(geometry, material);
+            planes[side].position.set(offset.x, offset.y, offset.z);
+            planes[side].setRotationFromEuler(new THREE.Euler(this.map[side].rotation.x, this.map[side].rotation.y, this.map[side].rotation.z));
+        }
+        // Добавляем на плоскости единицы еды
+        let levelDots = this.drawDots();
+        for (let level of levelDots) {
+            for (let dot of level.dots) {
+                planes[level.name].add(dot.mesh.clone());
+            }
+        }
+        // Добавляет на плоскости вишенки
+        let levelCherries = this.drawCherries();
+        for (let level of levelCherries) {
+            for (let cherry of level.cherries) {
+                planes[level.name].add(cherry.mesh.clone());
+            }
+        }
+        // Добавляем плоскости на сцену
+        sides.forEach(side => {
+            planesArray.push(planes[side]);
+        });
+        return planesArray;
+    }
     drawWalls() {
         let levelWalls = [];
         for (let level of this.levels) {
@@ -166,6 +204,19 @@ export class Game {
             levelWalls.push(wallMeshes);
         }
         return levelWalls;
+    }
+    drawLevelWalls() {
+        let levelWalls = this.drawWalls();
+        let wallArray = [];
+        for (let level of levelWalls) {
+            for (let walls of level) {
+                let edges = new THREE.EdgesGeometry(walls.geometry);
+                let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xfafafa }));
+                walls.add(contour);
+                wallArray.push(walls);
+            }
+        }
+        return wallArray;
     }
     clearCheckedCells(checkedCells) {
         for (let i = 0; i < Params.Rows; i++)
