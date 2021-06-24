@@ -26,9 +26,14 @@ viewerBox.appendChild(renderer.domElement);
 camera.position.set(0, 0, 750);
 controls.update();
 
+let ambientLight = new THREE.AmbientLight(0x0c0c0c);
+scene.add(ambientLight);
+let spotLight = new THREE.SpotLight( 0xffffff );
+scene.add( spotLight );
+
 // создание куба
 var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);
-var material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+var material = new THREE.MeshLambertMaterial({ color: 0x000000 });
 var cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
