@@ -11,7 +11,6 @@ const height = window.innerHeight * 0.85;
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
-const pacman_size = 10;
 
 // создание сцены
 var scene = new THREE.Scene();
@@ -69,35 +68,7 @@ manager.onError = function (url) {
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
 loader.load('./models/pacman.glb', function (gltf) {
-    // создание геометрии и mesh (модели) пакмана
-    let geometry = gltf.scene.children[0].geometry;
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff33 });
-    let pacman = new THREE.Mesh(geometry, material);
-    pacman.scale.set(pacman_size, pacman_size, pacman_size);
-    pacman.rotateY(-Math.PI / 2);
-    pacman.position.set(0, 0, Params.CubeSize / 2 + pacman_size);
-
-    // создание контура для пакмана
-    let curve = new THREE.EllipseCurve(0, 0, 1, 1, 2.15, -2.32 * Math.PI, false, 1);
-    let points = curve.getPoints(50);
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    material = new THREE.LineBasicMaterial({color: '#000000'});
-    let ellipse = new THREE.Line(geometry, material);
-    ellipse.rotateY(Math.PI);
-    ellipse.rotateX(7/4 * Math.PI);
-    let ellipse2 = new THREE.Line(geometry, material);
-    ellipse2.rotateY(-2 * Math.PI);
-    ellipse2.rotateX(3/4 * Math.PI);
-    pacman.add(ellipse);
-    pacman.add(ellipse2);
-    material = new THREE.LineBasicMaterial({ color: '#000000' });
-    points = [];
-    points.push(new THREE.Vector3(- 1.01, 0, -0.02));
-    points.push(new THREE.Vector3(1.01, 0, -0.02));
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    var line = new THREE.Line(geometry, material);
-    pacman.add(line);
-
+    let pacman = game.drawPacman(gltf.scene.children[0].geometry);
     scene.add(pacman);
 }, undefined, function (error) {
     console.error(error);

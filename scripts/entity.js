@@ -30,7 +30,7 @@ export class Entity {
     reqMove;
     posToMove;
     material;
-    size;
+    static Size;
     animationTime; // Если это tween.js - рассмотреть удаление/замену
     mesh;
     type;
