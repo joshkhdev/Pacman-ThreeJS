@@ -34,7 +34,7 @@ export abstract class Entity { // Поменять public на private, созд
     public reqMove?: any;
     public posToMove?: THREE.Vector3;
     public material: any;
-    public size: number;
+    public static Size: number;
     public animationTime: number; // Если это tween.js - рассмотреть удаление/замену
     public mesh?: THREE.Mesh;
     public type: Objects;

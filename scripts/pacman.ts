@@ -2,10 +2,11 @@ import * as THREE from './lib/three.module.js';
 import { Entity, Objects } from './entity.js';
 
 export class Pacman extends Entity {
+    //public static Size: number;
     constructor() {
         super();
+        Pacman.Size = 10;
         this.material = new THREE.MeshLambertMaterial({ color: '#FF1FF8' });
-        this.size = 12;
         this.animationTime = 120;
         this.type = Objects.pacman;
     }

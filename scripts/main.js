@@ -11,7 +11,6 @@ const height = window.innerHeight * 0.85;
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
-const pacman_size = 10;
 
 // создание сцены
 var scene = new THREE.Scene();
@@ -26,10 +25,11 @@ viewerBox.appendChild(renderer.domElement);
 camera.position.set(0, 0, 750);
 controls.update();
 
+// TODO: TESTING
 let ambientLight = new THREE.AmbientLight(0x0c0c0c);
 scene.add(ambientLight);
-let spotLight = new THREE.SpotLight( 0xffffff );
-scene.add( spotLight );
+let spotLight = new THREE.SpotLight(0xffffff);
+scene.add(spotLight);
 
 // создание куба
 var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);
@@ -42,73 +42,17 @@ let edges = new THREE.EdgesGeometry(geometry);
 let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
 scene.add(contour);
 
-// загрузка стен уровня
 var game = new Game();
-drawLevelWalls(game);
-drawLevelDots(game);
-drawLevelCherries(game);
-
-function drawLevelWalls(game) {
-    let levelWalls = game.drawWalls();
-    for (let level of levelWalls)
-    {
-        for (let walls of level)
-        {
-            let edges = new THREE.EdgesGeometry(walls.geometry);
-            let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-            walls.add(contour);
-            scene.add(walls);
-        }  
-    }
-}
-
-function drawLevelDots(game) {
-    let levelDots = game.drawDots();
-    let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
-    let material = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
-
-    for (let level of levelDots)
-    {
-        let name = level.name;
-        let plane = new THREE.Mesh(geometry, material);
-        let offset = { // Добавление дополнительного смещения в половину высоты стены
-            x: game.map[name].offset.x ? (game.map[name].offset.x > 0 ? game.map[name].offset.x + Params.Depth/2 : game.map[name].offset.x - Params.Depth/2) : 0,
-            y: game.map[name].offset.y ? (game.map[name].offset.y > 0 ? game.map[name].offset.y + Params.Depth/2 : game.map[name].offset.y - Params.Depth/2) : 0,
-            z: game.map[name].offset.z ? (game.map[name].offset.z > 0 ? game.map[name].offset.z + Params.Depth/2 : game.map[name].offset.z - Params.Depth/2) : 0
-        }
-        plane.position.set(offset.x, offset.y, offset.z);
-        plane.setRotationFromEuler(new THREE.Euler(game.map[name].rotation.x, game.map[name].rotation.y, game.map[name].rotation.z));
-        for (let dot of level.dots)
-        {
-            plane.add(dot.mesh.clone());
-        }
-        scene.add(plane);
-    }
-}
-
-function drawLevelCherries(game) {
-    let levelCherries = game.drawCherries();
-    let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
-    let material = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
-    
-    for (let level of levelCherries)
-    {
-        let name = level.name;
-        let plane = new THREE.Mesh(geometry, material);
-        let offset = { // Добавление дополнительного смещения в половину высоты стены
-            x: game.map[name].offset.x ? (game.map[name].offset.x > 0 ? game.map[name].offset.x + Params.Depth/2 : game.map[name].offset.x - Params.Depth/2) : 0,
-            y: game.map[name].offset.y ? (game.map[name].offset.y > 0 ? game.map[name].offset.y + Params.Depth/2 : game.map[name].offset.y - Params.Depth/2) : 0,
-            z: game.map[name].offset.z ? (game.map[name].offset.z > 0 ? game.map[name].offset.z + Params.Depth/2 : game.map[name].offset.z - Params.Depth/2) : 0
-        }
-        plane.position.set(offset.x, offset.y, offset.z);
-        plane.setRotationFromEuler(new THREE.Euler(game.map[name].rotation.x, game.map[name].rotation.y, game.map[name].rotation.z));
-        for (let cherry of level.cherries)
-        {
-            plane.add(cherry.mesh.clone());
-        }
-        scene.add(plane);
-    }
-}
+// загрузка стен уровня
+let walls = game.drawLevelWalls();
+walls.forEach(wall => {
+    scene.add(wall);
+});
+// зарузка плоскостей с игровыми объектами
+let planes = game.drawLevelPlanes();
+planes.forEach(plane => {
+    scene.add(plane);
+});
 
 // создание менеджера загруки моделей
 const manager = new THREE.LoadingManager();
@@ -131,35 +75,7 @@ manager.onError = function (url) {
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
 loader.load('./models/pacman.glb', function (gltf) {
-    // создание геометрии и mesh (модели) пакмана
-    let geometry = gltf.scene.children[0].geometry;
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff33 });
-    let pacman = new THREE.Mesh(geometry, material);
-    pacman.scale.set(pacman_size, pacman_size, pacman_size);
-    pacman.rotateY(-Math.PI / 2);
-    pacman.position.set(0, 0, Params.CubeSize / 2 + pacman_size);
-
-    // создание контура для пакмана
-    let curve = new THREE.EllipseCurve(0, 0, 1, 1, 2.15, -2.32 * Math.PI, false, 1);
-    let points = curve.getPoints(50);
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    material = new THREE.LineBasicMaterial({color: '#000000'});
-    let ellipse = new THREE.Line(geometry, material);
-    ellipse.rotateY(Math.PI);
-    ellipse.rotateX(7/4 * Math.PI);
-    let ellipse2 = new THREE.Line(geometry, material);
-    ellipse2.rotateY(-2 * Math.PI);
-    ellipse2.rotateX(3/4 * Math.PI);
-    pacman.add(ellipse);
-    pacman.add(ellipse2);
-    material = new THREE.LineBasicMaterial({ color: '#000000' });
-    points = [];
-    points.push(new THREE.Vector3(- 1.01, 0, -0.02));
-    points.push(new THREE.Vector3(1.01, 0, -0.02));
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    var line = new THREE.Line(geometry, material);
-    pacman.add(line);
-
+    let pacman = game.drawPacman(gltf.scene.children[0].geometry);
     scene.add(pacman);
 }, undefined, function (error) {
     console.error(error);

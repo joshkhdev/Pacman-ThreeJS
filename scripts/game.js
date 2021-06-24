@@ -1,6 +1,7 @@
 import * as THREE from './lib/three.module.js';
 import { MAP } from './levels.js';
 import { Objects, Params } from './entity.js';
+import { Pacman } from './pacman.js';
 class Dot {
     static Size = 5;
     i;
@@ -81,6 +82,7 @@ export class Game {
     levels;
     score;
     scoreText;
+    pacman;
     constructor() {
         this.curLevel = 'front';
         this.map = MAP;
@@ -101,6 +103,36 @@ export class Game {
                 if (grid[i][j] == object)
                     array.push({ i: i, j: j });
         return array;
+    }
+    drawPacman(geometry) {
+        this.pacman = new Pacman();
+        // создание mesh (модели) пакмана
+        let material = new THREE.MeshBasicMaterial({ color: 0xffff33 });
+        let pacman = new THREE.Mesh(geometry, material);
+        pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
+        pacman.rotateY(-Math.PI / 2);
+        pacman.position.set(0, 0, Params.CubeSize / 2 + Pacman.Size);
+        // создание контура для пакмана
+        let curve = new THREE.EllipseCurve(0, 0, 1, 1, 2.15, -2.32 * Math.PI, false, 1);
+        let points = curve.getPoints(50);
+        geometry = new THREE.BufferGeometry().setFromPoints(points);
+        material = new THREE.LineBasicMaterial({ color: '#000000' });
+        let ellipse = new THREE.Line(geometry, material);
+        ellipse.rotateY(Math.PI);
+        ellipse.rotateX(7 / 4 * Math.PI);
+        let ellipse2 = new THREE.Line(geometry, material);
+        ellipse2.rotateY(-2 * Math.PI);
+        ellipse2.rotateX(3 / 4 * Math.PI);
+        pacman.add(ellipse);
+        pacman.add(ellipse2);
+        material = new THREE.LineBasicMaterial({ color: '#000000' });
+        points = [];
+        points.push(new THREE.Vector3(-1.01, 0, -0.02));
+        points.push(new THREE.Vector3(1.01, 0, -0.02));
+        geometry = new THREE.BufferGeometry().setFromPoints(points);
+        var line = new THREE.Line(geometry, material);
+        pacman.add(line);
+        return pacman;
     }
     drawDots() {
         let dots = [];
@@ -129,6 +161,39 @@ export class Game {
             cherries = [];
         }
         return levelCherries;
+    }
+    drawLevelPlanes() {
+        let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
+        let material = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.0 });
+        let sides = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+        let planes = {};
+        for (let side of sides) {
+            let offset = {
+                x: this.map[side].offset.x ? (this.map[side].offset.x > 0 ? this.map[side].offset.x + Params.Depth / 2 : this.map[side].offset.x - Params.Depth / 2) : 0,
+                y: this.map[side].offset.y ? (this.map[side].offset.y > 0 ? this.map[side].offset.y + Params.Depth / 2 : this.map[side].offset.y - Params.Depth / 2) : 0,
+                z: this.map[side].offset.z ? (this.map[side].offset.z > 0 ? this.map[side].offset.z + Params.Depth / 2 : this.map[side].offset.z - Params.Depth / 2) : 0
+            };
+            planes[side] = new THREE.Mesh(geometry, material);
+            planes[side].position.set(offset.x, offset.y, offset.z);
+            planes[side].setRotationFromEuler(new THREE.Euler(this.map[side].rotation.x, this.map[side].rotation.y, this.map[side].rotation.z));
+        }
+        let levelDots = this.drawDots();
+        for (let level of levelDots) {
+            for (let dot of level.dots) {
+                planes[level.name].add(dot.mesh.clone());
+            }
+        }
+        let levelCherries = this.drawCherries();
+        for (let level of levelCherries) {
+            for (let cherry of level.cherries) {
+                planes[level.name].add(cherry.mesh.clone());
+            }
+        }
+        let planesArray = [];
+        sides.forEach(side => {
+            planesArray.push(planes[side]);
+        });
+        return planesArray;
     }
     drawWalls() {
         let levelWalls = [];
@@ -166,6 +231,19 @@ export class Game {
             levelWalls.push(wallMeshes);
         }
         return levelWalls;
+    }
+    drawLevelWalls() {
+        let wallArray = [];
+        let levelWalls = this.drawWalls();
+        for (let level of levelWalls) {
+            for (let walls of level) {
+                let edges = new THREE.EdgesGeometry(walls.geometry);
+                let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xfafafa }));
+                walls.add(contour);
+                wallArray.push(walls);
+            }
+        }
+        return wallArray;
     }
     clearCheckedCells(checkedCells) {
         for (let i = 0; i < Params.Rows; i++)
