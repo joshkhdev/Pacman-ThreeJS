@@ -6,7 +6,7 @@ class Ghost extends Entity {
     lastObject;
     constructor() {
         super();
-        this.size = 20;
+        Ghost.Size = 20;
         this.animationTime = 135;
     }
     updateCell(grid) {

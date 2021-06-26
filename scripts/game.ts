@@ -37,7 +37,7 @@ class Dot {
     }
     public setMesh() {
         let sphere = new THREE.SphereGeometry(Dot.Size, Dot.Size, Dot.Size);
-        let material  = new THREE.MeshBasicMaterial({ color: '#fafafa'} );
+        let material  = new THREE.MeshStandardMaterial({ color: '#fafafa'} );
         this.mesh = new THREE.Mesh(sphere, material);
         this.mesh.position.set(this.getX(), this.getY(), 0);
     }
@@ -66,7 +66,7 @@ class Cherry extends Dot {
     }
     public setMesh() {
         let cherry_geometry = new THREE.SphereGeometry(Cherry.Length, Cherry.Height, Cherry.Width);
-        let cherry_material = new THREE.MeshBasicMaterial({color: "#991c1c"});
+        let cherry_material = new THREE.MeshStandardMaterial({color: "#991c1c"});
         let cherry1 = new THREE.Mesh(cherry_geometry, cherry_material);
         let cherry2 = new THREE.Mesh(cherry_geometry, cherry_material);
         cherry2.position.set(9,5,0); // ?
@@ -106,7 +106,7 @@ class Cherry extends Dot {
 
 export class Game {
     private curLevel: LevelType;
-    public readonly map: Map;
+    public static readonly map: Map = MAP;
     private levels: Level[];
     public score: number;
     public scoreText: HTMLElement;
@@ -114,7 +114,6 @@ export class Game {
 
     constructor() {
         this.curLevel = 'front';
-        this.map = MAP;
         this.score = 0;
         this.scoreText = document.getElementById('score');
         this.setLevels();
@@ -140,32 +139,11 @@ export class Game {
     public drawPacman(geometry) {
         this.pacman = new Pacman();
         // создание mesh (модели) пакмана
-        let material = new THREE.MeshBasicMaterial({ color: 0xffff33 });
+        let material = new THREE.MeshStandardMaterial({ color: 0xffff33 });
         let pacman = new THREE.Mesh(geometry, material);
         pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
         pacman.rotateY(-Math.PI / 2);
         pacman.position.set(0, 0, Params.CubeSize / 2 + Pacman.Size);
-
-        // создание контура для пакмана
-        let curve = new THREE.EllipseCurve(0, 0, 1, 1, 2.15, -2.32 * Math.PI, false, 1);
-        let points = curve.getPoints(50);
-        geometry = new THREE.BufferGeometry().setFromPoints(points);
-        material = new THREE.LineBasicMaterial({color: '#000000'});
-        let ellipse = new THREE.Line(geometry, material);
-        ellipse.rotateY(Math.PI);
-        ellipse.rotateX(7/4 * Math.PI);
-        let ellipse2 = new THREE.Line(geometry, material);
-        ellipse2.rotateY(-2 * Math.PI);
-        ellipse2.rotateX(3/4 * Math.PI);
-        pacman.add(ellipse);
-        pacman.add(ellipse2);
-        material = new THREE.LineBasicMaterial({ color: '#000000' });
-        points = [];
-        points.push(new THREE.Vector3(- 1.01, 0, -0.02));
-        points.push(new THREE.Vector3(1.01, 0, -0.02));
-        geometry = new THREE.BufferGeometry().setFromPoints(points);
-        var line = new THREE.Line(geometry, material);
-        pacman.add(line);
         return pacman;
     }
 
@@ -205,7 +183,7 @@ export class Game {
     
     public drawLevelPlanes() {
         let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
-        let material = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
+        let material = new THREE.MeshStandardMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
         
         let sides = [ 'front', 'back', 'right', 'left', 'top', 'bottom' ];
         let planes = {};
@@ -213,13 +191,13 @@ export class Game {
         for (let side of sides)
         {
             let offset = { // Добавление дополнительного смещения в половину высоты стены
-                x: this.map[side].offset.x ? (this.map[side].offset.x > 0 ? this.map[side].offset.x + Params.Depth/2 : this.map[side].offset.x - Params.Depth/2) : 0,
-                y: this.map[side].offset.y ? (this.map[side].offset.y > 0 ? this.map[side].offset.y + Params.Depth/2 : this.map[side].offset.y - Params.Depth/2) : 0,
-                z: this.map[side].offset.z ? (this.map[side].offset.z > 0 ? this.map[side].offset.z + Params.Depth/2 : this.map[side].offset.z - Params.Depth/2) : 0
+                x: Game.map[side].offset.x ? (Game.map[side].offset.x > 0 ? Game.map[side].offset.x + Params.Depth/2 : Game.map[side].offset.x - Params.Depth/2) : 0,
+                y: Game.map[side].offset.y ? (Game.map[side].offset.y > 0 ? Game.map[side].offset.y + Params.Depth/2 : Game.map[side].offset.y - Params.Depth/2) : 0,
+                z: Game.map[side].offset.z ? (Game.map[side].offset.z > 0 ? Game.map[side].offset.z + Params.Depth/2 : Game.map[side].offset.z - Params.Depth/2) : 0
             }
             planes[side] = new THREE.Mesh(geometry, material);
             planes[side].position.set(offset.x, offset.y, offset.z);
-            planes[side].setRotationFromEuler(new THREE.Euler(this.map[side].rotation.x, this.map[side].rotation.y, this.map[side].rotation.z));
+            planes[side].setRotationFromEuler(new THREE.Euler(Game.map[side].rotation.x, Game.map[side].rotation.y, Game.map[side].rotation.z));
         }
 
         let levelDots = this.drawDots();
@@ -274,7 +252,7 @@ export class Game {
                         bevelEnabled: false,
                     };
                     let geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-                    let material = new THREE.MeshBasicMaterial({ color: level.color });
+                    let material = new THREE.MeshStandardMaterial({ color: level.color });
                     let wallMesh = new THREE.Mesh(geometry, material);
                     wallMesh.position.set(level.offset.x, level.offset.y, level.offset.z);
                     wallMesh.rotation.setFromVector3(new THREE.Vector3(level.rotation.x, level.rotation.y, level.rotation.z));
@@ -293,9 +271,6 @@ export class Game {
         {
             for (let walls of level)
             {
-                let edges = new THREE.EdgesGeometry(walls.geometry);
-                let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-                walls.add(contour);
                 wallArray.push(walls);
             }  
         }
@@ -474,11 +449,11 @@ export class Game {
     }
     private setLevels() {
         this.levels = [];
-        this.levels.push(this.map['front']);
-        this.levels.push(this.map['back']);
-        this.levels.push(this.map['right']);
-        this.levels.push(this.map['left']);
-        this.levels.push(this.map['top']);
-        this.levels.push(this.map['bottom']);
+        this.levels.push(Game.map['front']);
+        this.levels.push(Game.map['back']);
+        this.levels.push(Game.map['right']);
+        this.levels.push(Game.map['left']);
+        this.levels.push(Game.map['top']);
+        this.levels.push(Game.map['bottom']);
     }
 }

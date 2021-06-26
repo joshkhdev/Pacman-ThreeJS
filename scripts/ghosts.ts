@@ -9,7 +9,7 @@ abstract class Ghost extends Entity {
     public lastObject: Objects;
     protected constructor() {
         super();
-        this.size = 20;
+        Ghost.Size = 20;
         this.animationTime = 135;
     }
     public updateCell(grid: number[][]) {

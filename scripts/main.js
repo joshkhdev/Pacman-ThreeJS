@@ -25,15 +25,22 @@ viewerBox.appendChild(renderer.domElement);
 camera.position.set(0, 0, 750);
 controls.update();
 
-// TODO: TESTING
-let ambientLight = new THREE.AmbientLight(0x0c0c0c);
+// Добавление освещения и луча света на переднюю грань
+let ambientLight = new THREE.AmbientLight(0xfafafa, 0.9);
 scene.add(ambientLight);
-let spotLight = new THREE.SpotLight(0xffffff);
+// Подобрать цвет и положение spotlight, подобрать подходящие цвета (оттенки) для стен
+let spotLight = new THREE.SpotLight(0x404040);
+spotLight.position.set(Params.CubeSize * 4, Params.CubeSize * 4, Params.CubeSize * 4);
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+spotLight.shadow.camera.near = 0.1;
+spotLight.shadow.camera.far = 10000;
+spotLight.shadow.camera.fov = 75;
 scene.add(spotLight);
 
 // создание куба
 var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);
-var material = new THREE.MeshLambertMaterial({ color: 0x000000 });
+var material = new THREE.MeshStandardMaterial({ color: 0x000000 });
 var cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -77,6 +84,18 @@ const loader = new GLTFLoader(manager);
 loader.load('./models/pacman.glb', function (gltf) {
     let pacman = game.drawPacman(gltf.scene.children[0].geometry);
     scene.add(pacman);
+}, undefined, function (error) {
+    console.error(error);
+});
+
+// загрузка модели призрака Blinky
+loader.load('./models/Blinky.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(10, 10, 10); // Ghost.Size/2
+    ghost.position.set(Params.CellSize, Params.CellSize, Params.CubeSize / 2 + Params.Depth / 2);
+    ghost.rotateY(-Math.PI/2);
+    console.log(ghost);
+    scene.add(ghost);
 }, undefined, function (error) {
     console.error(error);
 });
