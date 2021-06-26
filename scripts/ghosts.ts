@@ -1,4 +1,4 @@
-import * as THREE from './three.module.js';
+import * as THREE from './lib/three.module.js';
 import { Entity, Objects } from './entity.js';
 
 export type GhostState = 'chase' | 'scatter' | 'fright';
@@ -9,7 +9,7 @@ abstract class Ghost extends Entity {
     public lastObject: Objects;
     protected constructor() {
         super();
-        this.size = 20;
+        Ghost.Size = 20;
         this.animationTime = 135;
     }
     public updateCell(grid: number[][]) {

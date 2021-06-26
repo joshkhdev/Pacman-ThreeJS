@@ -1,6 +1,6 @@
-import * as THREE from './three.module.js';
-import { OrbitControls } from './orbit-controls.three.module.js';
-import { GLTFLoader } from './gltf-loader.three.module.js';
+import * as THREE from './lib/three.module.js';
+import { OrbitControls } from './lib/orbit-controls.three.module.js';
+import { GLTFLoader } from './lib/gltf-loader.three.module.js';
 import { Game } from './game.js';
 import { Objects, Params } from './entity.js';
 
@@ -11,7 +11,6 @@ const height = window.innerHeight * 0.85;
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
-const pacman_size = 10;
 
 // создание сцены
 var scene = new THREE.Scene();
@@ -26,9 +25,22 @@ viewerBox.appendChild(renderer.domElement);
 camera.position.set(0, 0, 750);
 controls.update();
 
+// Добавление освещения и луча света на переднюю грань
+let ambientLight = new THREE.AmbientLight(0xfafafa, 0.9);
+scene.add(ambientLight);
+// Подобрать цвет и положение spotlight, подобрать подходящие цвета (оттенки) для стен
+let spotLight = new THREE.SpotLight(0x404040);
+spotLight.position.set(Params.CubeSize * 4, Params.CubeSize * 4, Params.CubeSize * 4);
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+spotLight.shadow.camera.near = 0.1;
+spotLight.shadow.camera.far = 10000;
+spotLight.shadow.camera.fov = 75;
+scene.add(spotLight);
+
 // создание куба
 var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);
-var material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+var material = new THREE.MeshStandardMaterial({ color: 0x000000 });
 var cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -37,23 +49,17 @@ let edges = new THREE.EdgesGeometry(geometry);
 let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
 scene.add(contour);
 
-// загрузка стен уровня
 var game = new Game();
-drawLevelWalls(game);
-
-function drawLevelWalls(game) {
-    let levelWalls = game.drawWalls();
-    for (let level of levelWalls)
-    {
-        for (let walls of level)
-        {
-            let edges = new THREE.EdgesGeometry(walls.geometry);
-            let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-            walls.add(contour);
-            scene.add(walls);
-        }  
-    }
-}
+// загрузка стен уровня
+let walls = game.drawLevelWalls();
+walls.forEach(wall => {
+    scene.add(wall);
+});
+// зарузка плоскостей с игровыми объектами
+let planes = game.drawLevelPlanes();
+planes.forEach(plane => {
+    scene.add(plane);
+});
 
 // создание менеджера загруки моделей
 const manager = new THREE.LoadingManager();
@@ -76,36 +82,20 @@ manager.onError = function (url) {
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
 loader.load('./models/pacman.glb', function (gltf) {
-    // создание геометрии и mesh (модели) пакмана
-    let geometry = gltf.scene.children[0].geometry;
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff33 });
-    let pacman = new THREE.Mesh(geometry, material);
-    pacman.scale.set(pacman_size, pacman_size, pacman_size);
-    pacman.rotateY(-Math.PI / 2);
-    pacman.position.set(0, 0, Params.CubeSize / 2 + pacman_size);
-
-    // создание контура для пакмана
-    let curve = new THREE.EllipseCurve(0, 0, 1, 1, 2.15, -2.32 * Math.PI, false, 1);
-    let points = curve.getPoints(50);
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    material = new THREE.LineBasicMaterial({color: '#000000'});
-    let ellipse = new THREE.Line(geometry, material);
-    ellipse.rotateY(Math.PI);
-    ellipse.rotateX(7/4 * Math.PI);
-    let ellipse2 = new THREE.Line(geometry, material);
-    ellipse2.rotateY(-2 * Math.PI);
-    ellipse2.rotateX(3/4 * Math.PI);
-    pacman.add(ellipse);
-    pacman.add(ellipse2);
-    material = new THREE.LineBasicMaterial({ color: '#000000' });
-    points = [];
-    points.push(new THREE.Vector3(- 1.01, 0, -0.02));
-    points.push(new THREE.Vector3(1.01, 0, -0.02));
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    var line = new THREE.Line(geometry, material);
-    pacman.add(line);
-
+    let pacman = game.drawPacman(gltf.scene.children[0].geometry);
     scene.add(pacman);
+}, undefined, function (error) {
+    console.error(error);
+});
+
+// загрузка модели призрака Blinky
+loader.load('./models/Blinky.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(10, 10, 10); // Ghost.Size/2
+    ghost.position.set(Params.CellSize, Params.CellSize, Params.CubeSize / 2 + Params.Depth / 2);
+    ghost.rotateY(-Math.PI/2);
+    console.log(ghost);
+    scene.add(ghost);
 }, undefined, function (error) {
     console.error(error);
 });

@@ -1,11 +1,11 @@
-import * as THREE from './three.module.js';
+import * as THREE from './lib/three.module.js';
 
 export type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
 
 export const Params = {
     CellSize: 20,
     CubeSize: 500,
-    WallSize: 20,
+    WallSize: 18,
     Depth: 20,
     Rows: 25,
     Cols: 25
@@ -14,9 +14,11 @@ export const Params = {
 export enum Objects {
     blank,
     wall,
-    dynwall,
-    spawnwall,
+    //dynwall,
+    //spawnwall,
     dot,
+    cherry,
+    powerup,
     pacman,
     blinky,
     pinky,
@@ -32,7 +34,7 @@ export abstract class Entity { // Поменять public на private, созд
     public reqMove?: any;
     public posToMove?: THREE.Vector3;
     public material: any;
-    public size: number;
+    public static Size: number;
     public animationTime: number; // Если это tween.js - рассмотреть удаление/замену
     public mesh?: THREE.Mesh;
     public type: Objects;

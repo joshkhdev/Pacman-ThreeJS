@@ -1,4 +1,4 @@
-import * as THREE from './three.module.js';
+import * as THREE from './lib/three.module.js';
 import { Entity, Objects } from './entity.js';
 class Ghost extends Entity {
     state;
@@ -6,7 +6,7 @@ class Ghost extends Entity {
     lastObject;
     constructor() {
         super();
-        this.size = 20;
+        Ghost.Size = 20;
         this.animationTime = 135;
     }
     updateCell(grid) {
