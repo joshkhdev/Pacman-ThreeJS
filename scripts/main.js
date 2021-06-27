@@ -92,13 +92,47 @@ loader.load('./models/pacman.glb', function (gltf) {
 loader.load('./models/Blinky.glb', function (gltf) {
     let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
     ghost.scale.set(10, 10, 10); // Ghost.Size/2
-    ghost.position.set(Params.CellSize, Params.CellSize, Params.CubeSize / 2 + Params.Depth / 2);
+    ghost.position.set(Params.CellSize, Params.CellSize+10, Params.CubeSize / 2 + Params.Depth / 2);
     ghost.rotateY(-Math.PI/2);
     console.log(ghost);
     scene.add(ghost);
 }, undefined, function (error) {
     console.error(error);
 });
+// загрузка модели призрака Pinky
+loader.load('./models/Pinky.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(10, 10, 10); // Ghost.Size/2
+    ghost.position.set(Params.CellSize+20, Params.CellSize+10, Params.CubeSize / 2 + Params.Depth / 2);
+    ghost.rotateY(-Math.PI/2);
+    console.log(ghost);
+    scene.add(ghost);
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака Inky
+loader.load('./models/Inky.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(10, 10, 10); // Ghost.Size/2
+    ghost.position.set(Params.CellSize-20, Params.CellSize+10, Params.CubeSize / 2 + Params.Depth / 2);
+    ghost.rotateY(-Math.PI/2);
+    console.log(ghost);
+    scene.add(ghost);
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака Clyde
+loader.load('./models/Clyde.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(10, 10, 10); // Ghost.Size/2
+    ghost.position.set(Params.CellSize-40, Params.CellSize+10, Params.CubeSize / 2 + Params.Depth / 2);
+    ghost.rotateY(-Math.PI/2);
+    console.log(ghost);
+    scene.add(ghost);
+}, undefined, function (error) {
+    console.error(error);
+});
+
 
 // вызов функции анимации
 animate();
