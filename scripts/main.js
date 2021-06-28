@@ -87,13 +87,21 @@ loader.load('./models/Pacman.glb', function (gltf) {
 }, undefined, function (error) {
     console.error(error);
 });
-
+// загрузка модели призрака Blinky
+loader.load('./models/Pacman.glb', function (gltf) {
+    let pacman = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    pacman.scale.set(Pacman.size(), Pacman.size(), Pacman.size()); // Ghost.Size/2
+    pacman.position.set(Params.CellSize, Params.CellSize , Params.CubeSize / 2 + Params.Depth / 2);
+    console.log(pacman);
+    scene.add(pacman);
+}, undefined, function (error) {
+    console.error(error);
+});
 // загрузка модели призрака Blinky
 loader.load('./models/Blinky.glb', function (gltf) {
     let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
-    ghost.scale.set(8, 8, 8); // Ghost.Size/2
+    ghost.scale.set(8,8,8); // Ghost.Size/2
     ghost.position.set(-2 * Params.CellSize, -Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
     console.log(ghost);
     scene.add(ghost);
 }, undefined, function (error) {
@@ -104,7 +112,6 @@ loader.load('./models/Pinky.glb', function (gltf) {
     let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
     ghost.scale.set(8, 8, 8); // Ghost.Size/2
     ghost.position.set(Params.CellSize * 2, -Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
     console.log(ghost);
     scene.add(ghost);
 }, undefined, function (error) {
@@ -115,7 +122,6 @@ loader.load('./models/Inky.glb', function (gltf) {
     let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
     ghost.scale.set(8, 8, 8); // Ghost.Size/2
     ghost.position.set(Params.CellSize * 2, Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
     console.log(ghost);
     scene.add(ghost);
 }, undefined, function (error) {
@@ -126,14 +132,11 @@ loader.load('./models/Clyde.glb', function (gltf) {
     let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
     ghost.scale.set(8, 8, 8); // Ghost.Size/2
     ghost.position.set(-Params.CellSize * 2, Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
     console.log(ghost);
     scene.add(ghost);
 }, undefined, function (error) {
     console.error(error);
 });
-
-
 // вызов функции анимации
 animate();
 
