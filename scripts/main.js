@@ -81,7 +81,7 @@ manager.onError = function (url) {
 
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
-loader.load('./models/Pacman.glb', function (gltf) {
+loader.load('./models/Pacman.gltf', function (gltf) {
     let pacman = game.drawPacman(gltf.scene.children[0].geometry);
     scene.add(pacman);
 }, undefined, function (error) {
@@ -132,6 +132,26 @@ loader.load('./models/Clyde.glb', function (gltf) {
     let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
     ghost.scale.set(8, 8, 8); // Ghost.Size/2
     ghost.position.set(-Params.CellSize * 2, Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
+    console.log(ghost);
+    scene.add(ghost);
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака Scary
+loader.load('./models/Scary.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(8,8,8); // Ghost.Size/2
+    ghost.position.set(-2 * Params.CellSize, -Params.CellSize * 1, Params.CubeSize / 2 + Params.Depth / 2);
+    console.log(ghost);
+    scene.add(ghost);
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака ScaryRed
+loader.load('./models/ScaryRed.glb', function (gltf) {
+    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
+    ghost.scale.set(8,8,8); // Ghost.Size/2
+    ghost.position.set(2 * Params.CellSize, -Params.CellSize*1, Params.CubeSize / 2 + Params.Depth / 2);
     console.log(ghost);
     scene.add(ghost);
 }, undefined, function (error) {
