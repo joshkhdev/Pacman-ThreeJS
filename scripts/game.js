@@ -2,6 +2,7 @@ import * as THREE from './lib/three.module.js';
 import { MAP } from './levels.js';
 import { Objects, Params } from './entity.js';
 import { Pacman } from './pacman.js';
+import { Ghost, Blinky, Pinky, Inky, Clyde } from './ghosts.js';
 class Dot {
     static Size = 5;
     i;
@@ -82,7 +83,13 @@ export class Game {
     levels;
     score;
     scoreText;
-    pacman;
+    Pacman;
+    Blinky;
+    Pinky;
+    Inky;
+    Clyde;
+    sides = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+    planes = {};
     constructor() {
         this.curLevel = 'front';
         this.score = 0;
@@ -102,16 +109,6 @@ export class Game {
                 if (grid[i][j] == object)
                     array.push({ i: i, j: j });
         return array;
-    }
-    drawPacman(geometry) {
-        this.pacman = new Pacman();
-        // создание mesh (модели) пакмана
-        let material = new THREE.MeshStandardMaterial({ color: 0xffff33 });
-        let pacman = new THREE.Mesh(geometry, material);
-        pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
-        pacman.rotateY(-Math.PI / 2);
-        pacman.position.set(0, 0, Params.CubeSize / 2 + Pacman.Size);
-        return pacman;
     }
     drawDots() {
         let dots = [];
@@ -144,33 +141,31 @@ export class Game {
     drawLevelPlanes() {
         let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
         let material = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.0 });
-        let sides = ['front', 'back', 'right', 'left', 'top', 'bottom'];
-        let planes = {};
-        for (let side of sides) {
+        for (let side of this.sides) {
             let offset = {
                 x: Game.map[side].offset.x ? (Game.map[side].offset.x > 0 ? Game.map[side].offset.x + Params.Depth / 2 : Game.map[side].offset.x - Params.Depth / 2) : 0,
                 y: Game.map[side].offset.y ? (Game.map[side].offset.y > 0 ? Game.map[side].offset.y + Params.Depth / 2 : Game.map[side].offset.y - Params.Depth / 2) : 0,
                 z: Game.map[side].offset.z ? (Game.map[side].offset.z > 0 ? Game.map[side].offset.z + Params.Depth / 2 : Game.map[side].offset.z - Params.Depth / 2) : 0
             };
-            planes[side] = new THREE.Mesh(geometry, material);
-            planes[side].position.set(offset.x, offset.y, offset.z);
-            planes[side].setRotationFromEuler(new THREE.Euler(Game.map[side].rotation.x, Game.map[side].rotation.y, Game.map[side].rotation.z));
+            this.planes[side] = new THREE.Mesh(geometry, material);
+            this.planes[side].position.set(offset.x, offset.y, offset.z);
+            this.planes[side].setRotationFromEuler(new THREE.Euler(Game.map[side].rotation.x, Game.map[side].rotation.y, Game.map[side].rotation.z));
         }
         let levelDots = this.drawDots();
         for (let level of levelDots) {
             for (let dot of level.dots) {
-                planes[level.name].add(dot.mesh.clone());
+                this.planes[level.name].add(dot.mesh.clone());
             }
         }
         let levelCherries = this.drawCherries();
         for (let level of levelCherries) {
             for (let cherry of level.cherries) {
-                planes[level.name].add(cherry.mesh.clone());
+                this.planes[level.name].add(cherry.mesh.clone());
             }
         }
         let planesArray = [];
-        sides.forEach(side => {
-            planesArray.push(planes[side]);
+        this.sides.forEach(side => {
+            planesArray.push(this.planes[side]);
         });
         return planesArray;
     }
@@ -220,6 +215,66 @@ export class Game {
             }
         }
         return wallArray;
+    }
+    spawnPacman(geometry) {
+        this.Pacman = new Pacman();
+        // создание mesh (модели) пакмана
+        let material = new THREE.MeshStandardMaterial({ color: 0xffff33 });
+        let pacman = new THREE.Mesh(geometry, material);
+        pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
+        pacman.rotateY(-Math.PI / 2);
+        pacman.position.set(0, 0, Params.CubeSize / 2 + Pacman.Size);
+        return pacman;
+    }
+    initGhost(scene, ghost) {
+        let position;
+        let point;
+        switch (ghost) {
+            case 'Blinky':
+                position = this.findObjects(Objects.blinky, Game.map[this.curLevel].grid)[0];
+                this.Blinky = new Blinky();
+                this.Blinky.spawnCell = position;
+                let blinky = scene;
+                blinky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
+                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                blinky.position.set(point.x, point.y, point.z);
+                blinky.rotateY(-Math.PI / 2);
+                this.Blinky.setModel(blinky);
+                break;
+            case 'Pinky':
+                position = this.findObjects(Objects.pinky, Game.map[this.curLevel].grid)[0];
+                this.Pinky = new Pinky();
+                this.Pinky.spawnCell = position;
+                let pinky = scene;
+                pinky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
+                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                pinky.position.set(point.x, point.y, point.z);
+                pinky.rotateY(-Math.PI / 2);
+                this.Pinky.setModel(pinky);
+                break;
+            case 'Inky':
+                position = this.findObjects(Objects.inky, Game.map[this.curLevel].grid)[0];
+                this.Inky = new Inky();
+                this.Inky.spawnCell = position;
+                let inky = scene;
+                inky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
+                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                inky.position.set(point.x, point.y, point.z);
+                inky.rotateY(-Math.PI / 2);
+                this.Inky.setModel(inky);
+                break;
+            case 'Clyde':
+                position = this.findObjects(Objects.clyde, Game.map[this.curLevel].grid)[0];
+                this.Clyde = new Clyde();
+                this.Clyde.spawnCell = position;
+                let clyde = scene;
+                clyde.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
+                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                clyde.position.set(point.x, point.y, point.z);
+                clyde.rotateY(-Math.PI / 2);
+                this.Clyde.setModel(clyde);
+                break;
+        }
     }
     clearCheckedCells(checkedCells) {
         for (let i = 0; i < Params.Rows; i++)
@@ -367,6 +422,16 @@ export class Game {
     }
     findPointAround(x, y, wall) {
         return wall.find(item => item.x == x && item.y == y);
+    }
+    getPointOnPlane(i, j, level) {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let x = j * Params.CellSize - (radius - delta);
+        let y = -i * Params.CellSize + (radius - delta);
+        let vector = new THREE.Vector3(x + Game.map[level].offset.x, y + Game.map[level].offset.y, Params.Depth / 2 + Game.map[level].offset.z);
+        let euler = new THREE.Euler(Game.map[level].rotation.x, Game.map[level].rotation.y, Game.map[level].rotation.z);
+        vector.applyEuler(euler);
+        return vector;
     }
     // Get и Set методы
     getLevel() {

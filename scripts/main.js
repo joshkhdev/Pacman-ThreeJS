@@ -25,6 +25,24 @@ viewerBox.appendChild(renderer.domElement);
 camera.position.set(0, 0, 750);
 controls.update();
 
+// создание менеджера загруки моделей
+const manager = new THREE.LoadingManager();
+manager.onStart = function (url, itemsLoaded, itemsTotal) {
+    console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+};
+
+manager.onLoad = function () {
+    console.log('Loading complete!');
+};
+
+manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+    console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+};
+
+manager.onError = function (url) {
+    console.log('There was an error loading ' + url);
+};
+
 // Добавление освещения и луча света на переднюю грань
 let ambientLight = new THREE.AmbientLight(0xfafafa, 0.9);
 scene.add(ambientLight);
@@ -50,39 +68,23 @@ let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:
 scene.add(contour);
 
 var game = new Game();
+
 // загрузка стен уровня
 let walls = game.drawLevelWalls();
 walls.forEach(wall => {
     scene.add(wall);
 });
+
 // зарузка плоскостей с игровыми объектами
 let planes = game.drawLevelPlanes();
 planes.forEach(plane => {
     scene.add(plane);
 });
 
-// создание менеджера загруки моделей
-const manager = new THREE.LoadingManager();
-manager.onStart = function (url, itemsLoaded, itemsTotal) {
-    console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
-};
-
-manager.onLoad = function () {
-    console.log('Loading complete!');
-};
-
-manager.onProgress = function (url, itemsLoaded, itemsTotal) {
-    console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
-};
-
-manager.onError = function (url) {
-    console.log('There was an error loading ' + url);
-};
-
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
 loader.load('./models/Pacman.glb', function (gltf) {
-    let pacman = game.drawPacman(gltf.scene.children[0].geometry);
+    let pacman = game.spawnPacman(gltf.scene.children[0].geometry);
     scene.add(pacman);
 }, undefined, function (error) {
     console.error(error);
@@ -90,49 +92,36 @@ loader.load('./models/Pacman.glb', function (gltf) {
 
 // загрузка модели призрака Blinky
 loader.load('./models/Blinky.glb', function (gltf) {
-    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
-    ghost.scale.set(8, 8, 8); // Ghost.Size/2
-    ghost.position.set(-2 * Params.CellSize, -Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
-    console.log(ghost);
-    scene.add(ghost);
+    let blinky = gltf.scene;
+    game.initGhost(blinky, 'Blinky');
+    scene.add(game.Blinky.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
 // загрузка модели призрака Pinky
 loader.load('./models/Pinky.glb', function (gltf) {
-    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
-    ghost.scale.set(8, 8, 8); // Ghost.Size/2
-    ghost.position.set(Params.CellSize * 2, -Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
-    console.log(ghost);
-    scene.add(ghost);
+    let pinky = gltf.scene;
+    game.initGhost(pinky, 'Pinky');
+    scene.add(game.Pinky.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
 // загрузка модели призрака Inky
 loader.load('./models/Inky.glb', function (gltf) {
-    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
-    ghost.scale.set(8, 8, 8); // Ghost.Size/2
-    ghost.position.set(Params.CellSize * 2, Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
-    console.log(ghost);
-    scene.add(ghost);
+    let inky = gltf.scene;
+    game.initGhost(inky, 'Inky');
+    scene.add(game.Inky.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
 // загрузка модели призрака Clyde
 loader.load('./models/Clyde.glb', function (gltf) {
-    let ghost = gltf.scene; // Загрузка всей сцены (возможно временное решение)
-    ghost.scale.set(8, 8, 8); // Ghost.Size/2
-    ghost.position.set(-Params.CellSize * 2, Params.CellSize * 2, Params.CubeSize / 2 + Params.Depth / 2);
-    ghost.rotateY(-Math.PI/2);
-    console.log(ghost);
-    scene.add(ghost);
+    let clyde = gltf.scene;
+    game.initGhost(clyde, 'Clyde');
+    scene.add(game.Clyde.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
-
 
 // вызов функции анимации
 animate();

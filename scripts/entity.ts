@@ -1,4 +1,5 @@
 import * as THREE from './lib/three.module.js';
+import { MAP, LevelType } from './levels.js';
 
 export type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
 
@@ -12,18 +13,18 @@ export const Params = {
 }
 
 export enum Objects {
-    blank,
-    wall,
+    blank, // 0
+    wall, // 1
     //dynwall,
     //spawnwall,
-    dot,
-    cherry,
-    powerup,
-    pacman,
-    blinky,
-    pinky,
-    inky,
-    clyde
+    dot, // 2
+    cherry, // 3
+    powerup, // 4
+    pacman, // 5
+    blinky, // 6
+    pinky, // 7
+    inky, // 8
+    clyde // 9
 }
 
 export abstract class Entity { // Поменять public на private, создать get/set методы
@@ -33,7 +34,7 @@ export abstract class Entity { // Поменять public на private, созд
     public moveInterval?: any;
     public reqMove?: any;
     public posToMove?: THREE.Vector3;
-    public material: any;
+    //public material: any;
     public static Size: number;
     public animationTime: number; // Если это tween.js - рассмотреть удаление/замену
     public mesh?: THREE.Mesh;
@@ -57,11 +58,13 @@ export abstract class Entity { // Поменять public на private, созд
         if ((i >= 0 && i < Params.CubeSize/Params.CellSize) && (j >= 0 && j < Params.CubeSize/Params.CellSize))
             return grid[i][j] == Objects.blank || grid[i][j] == Objects.dot
     }
-    public step(x: number, y: number) {
+    public abstract getX(j?: number);
+    public abstract getY(i?: number);
+    /*public step(x: number, y: number) {
         this.movement.x = x;
         this.movement.y = y;
         this.posToMove = this.mesh.position.clone(); // ?
         this.posToMove = new THREE.Vector3(this.posToMove.x + x * Params.CellSize, this.posToMove.y + y * Params.CellSize, this.posToMove.z);
-    }
-    public abstract updateCell(grid: number[][]);
+    }*/
+    //public abstract updateCell(grid: number[][]);
 }

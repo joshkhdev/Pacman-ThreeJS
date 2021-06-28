@@ -1,4 +1,3 @@
-import * as THREE from './lib/three.module.js';
 export const Params = {
     CellSize: 20,
     CubeSize: 500,
@@ -20,7 +19,7 @@ export var Objects;
     Objects[Objects["blinky"] = 6] = "blinky";
     Objects[Objects["pinky"] = 7] = "pinky";
     Objects[Objects["inky"] = 8] = "inky";
-    Objects[Objects["clyde"] = 9] = "clyde";
+    Objects[Objects["clyde"] = 9] = "clyde"; // 9
 })(Objects || (Objects = {}));
 export class Entity {
     cell;
@@ -29,7 +28,7 @@ export class Entity {
     moveInterval;
     reqMove;
     posToMove;
-    material;
+    //public material: any;
     static Size;
     animationTime; // Если это tween.js - рассмотреть удаление/замену
     mesh;
@@ -53,11 +52,5 @@ export class Entity {
         let j = this.cell.j + x;
         if ((i >= 0 && i < Params.CubeSize / Params.CellSize) && (j >= 0 && j < Params.CubeSize / Params.CellSize))
             return grid[i][j] == Objects.blank || grid[i][j] == Objects.dot;
-    }
-    step(x, y) {
-        this.movement.x = x;
-        this.movement.y = y;
-        this.posToMove = this.mesh.position.clone(); // ?
-        this.posToMove = new THREE.Vector3(this.posToMove.x + x * Params.CellSize, this.posToMove.y + y * Params.CellSize, this.posToMove.z);
     }
 }
