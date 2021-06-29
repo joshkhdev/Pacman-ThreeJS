@@ -24,7 +24,7 @@ export class Ghost extends Entity {
         this.model = scene;
     }
     getModel() {
-        return this.model.clone();
+        return this.model;
     }
 }
 export class Blinky extends Ghost {

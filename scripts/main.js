@@ -130,8 +130,147 @@ animate();
 
 function animate() {
     requestAnimationFrame(animate);
-
     controls.update();
 
     renderer.render(scene, camera);
 };
+
+
+
+
+export const PACMAN_MOVEMENT = {
+    UP: "up",
+    DOWN: "down",
+    LEFT: "left",
+    RIGHT: "right",
+    };
+    PACMAN_MOVEMENT.RIGHT=true;
+    export const CAMERA_MOVEMENT = {
+    UP: "up",
+    DOWN: "down",
+    LEFT: "left",
+    RIGHT: "right",
+    };
+    
+    const onKeyDown = function ( event ) {
+ 
+    switch ( event.keyCode ) {
+    case 87: // W
+    if (PACMAN_MOVEMENT.RIGHT==true){
+        game.Pacman.rotateX(Math.PI/2); 
+        PACMAN_MOVEMENT.RIGHT=false;
+      
+    }
+    if (PACMAN_MOVEMENT.LEFT==true){
+        game.Pacman.rotateX(-Math.PI/2); 
+        PACMAN_MOVEMENT.LEFT=false;
+    }
+    if (PACMAN_MOVEMENT.DOWN==true){
+        game.Pacman.rotateX(Math.PI); 
+        PACMAN_MOVEMENT.DOWN=false;
+    }
+     
+    PACMAN_MOVEMENT.UP = true;
+    break;
+    case 65: // A
+    if (PACMAN_MOVEMENT.RIGHT==true){
+        game.Pacman.rotateX(Math.PI); 
+        PACMAN_MOVEMENT.RIGHT=false;
+    }
+    if (PACMAN_MOVEMENT.UP==true){
+        game.Pacman.rotateX(Math.PI/2); 
+        PACMAN_MOVEMENT.UP=false;
+    }
+    if (PACMAN_MOVEMENT.DOWN==true){
+        game.Pacman.rotateX(-Math.PI/2); 
+        PACMAN_MOVEMENT.DOWN=false;
+    }
+    PACMAN_MOVEMENT.LEFT = true;
+    break;
+    case 83: // S
+    if (PACMAN_MOVEMENT.RIGHT==true){
+        game.Pacman.rotateX(-Math.PI/2); 
+        PACMAN_MOVEMENT.RIGHT=false;
+    }
+    if (PACMAN_MOVEMENT.LEFT==true){
+        game.Pacman.rotateX(Math.PI/2); 
+        PACMAN_MOVEMENT.LEFT=false;
+    }
+    if (PACMAN_MOVEMENT.UP==true){
+        game.Pacman.rotateX(Math.PI); 
+        PACMAN_MOVEMENT.UP=false;
+    }
+    PACMAN_MOVEMENT.DOWN = true;
+    break;
+    case 68: // D
+    if (PACMAN_MOVEMENT.UP==true){
+        game.Pacman.rotateX(-Math.PI/2); 
+        PACMAN_MOVEMENT.UP=false;
+    }
+    if (PACMAN_MOVEMENT.LEFT==true){
+        game.Pacman.rotateX(Math.PI); 
+        PACMAN_MOVEMENT.LEFT=false;
+    }
+    if (PACMAN_MOVEMENT.DOWN==true){
+        game.Pacman.rotateX(Math.PI/2); 
+        PACMAN_MOVEMENT.DOWN=false;
+    }
+    PACMAN_MOVEMENT.RIGHT = true;
+    break;
+    case 38: // ARROW UP
+    CAMERA_MOVEMENT.UP = true;
+    camera.position.y += ySpeed;
+    break;
+    case 37: // ARROW LEFT
+    CAMERA_MOVEMENT.LEFT = true;
+    camera.position.x -= xSpeed; // При движении нужно приближать камеру
+    break;
+    case 40: // ARROW DOWN
+    CAMERA_MOVEMENT.DOWN = true;
+    camera.position.y -= ySpeed;
+    break;
+    case 39: // ARROW RIGHT
+    CAMERA_MOVEMENT.RIGHT = true;
+    camera.position.x += xSpeed;
+    break;
+    }
+    
+    
+    };
+    
+    // const onKeyUp = function ( event ) {
+    
+    // switch ( event.keyCode ) {
+    // case 87: // W
+    // PACMAN_MOVEMENT.UP = false;
+    // console.log('W pressed');
+    
+    // break;
+    // case 65: // A
+    // PACMAN_MOVEMENT.LEFT = false;
+    // break;
+    // case 83: // S
+    // PACMAN_MOVEMENT.DOWN = false;
+    // break;
+    // case 68: // D
+    // PACMAN_MOVEMENT.RIGHT = false;
+    // break;
+    // case 38: // ARROW UP
+    // CAMERA_MOVEMENT.UP = false ;
+    
+    // break;
+    // case 37: // ARROW LEFT
+    // CAMERA_MOVEMENT.LEFT = false;
+    // break;
+    // case 40: // ARROW DOWN
+    // CAMERA_MOVEMENT.DOWN = false;
+    // break;
+    // case 39: // ARROW RIGHT
+    // CAMERA_MOVEMENT.RIGHT = false;
+    // break;
+    // }
+    
+    // };
+    
+    addEventListener( 'keydown', onKeyDown );
+    addEventListener( 'keyup', onKeyUp );

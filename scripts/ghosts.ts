@@ -34,7 +34,7 @@ export abstract class Ghost extends Entity {
     }
 
     public getModel() {
-        return this.model.clone();
+        return this.model;
     }
 
     /*public updateCell(grid: number[][]) {

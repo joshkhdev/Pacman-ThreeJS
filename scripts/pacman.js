@@ -28,6 +28,15 @@ export class Pacman extends Entity {
         this.model = scene;
     }
     getModel() {
-        return this.model.clone();
+        return this.model;
+    }
+    rotateX(angle) {
+        this.model.rotateX(angle);
+    }
+    rotateY(angle) {
+        this.model.rotateY(angle);
+    }
+    rotateZ(angle) {
+        this.model.rotateZ(angle);
     }
 }
