@@ -269,17 +269,16 @@ export class Game {
         return wallArray;
     }
 
-    public spawnPacman(geometry) {
+    public initPacman(scene): void {
+        let position = this.findObjects(Objects.pacman, Game.map[this.curLevel].grid)[0];
         this.Pacman = new Pacman();
-        // создание mesh (модели) пакмана
-        let material = new THREE.MeshStandardMaterial({ color: 0xffff33 });
-        let pacman = new THREE.Mesh(geometry, material);
-        pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
-        
+        this.Pacman.spawnCell = this.findObjects(Objects.pacman, Game.map[this.curLevel].grid)[0];
+        let pacman = scene;
+        //pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
+        let point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+        pacman.position.set(point.x, point.y, point.z);
+        this.Pacman.setModel(pacman);
         pacman.rotateY(-Math.PI / 2);
-        pacman.position.set(0, 0, Params.CubeSize / 2 + Pacman.Size);
-        
-        return pacman;
     }
 
     public initGhost(scene, ghost: GhostName): void {
@@ -294,7 +293,6 @@ export class Game {
                 blinky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
                 point = this.getPointOnPlane(position.i, position.j, this.curLevel);
                 blinky.position.set(point.x, point.y, point.z);
-                blinky.rotateY(-Math.PI/2);
                 this.Blinky.setModel(blinky);
                 break;
             case 'Pinky':
@@ -305,7 +303,6 @@ export class Game {
                 pinky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
                 point = this.getPointOnPlane(position.i, position.j, this.curLevel);
                 pinky.position.set(point.x, point.y, point.z);
-                pinky.rotateY(-Math.PI/2);
                 this.Pinky.setModel(pinky);
                 break;
             case 'Inky':
@@ -316,7 +313,6 @@ export class Game {
                 inky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
                 point = this.getPointOnPlane(position.i, position.j, this.curLevel);
                 inky.position.set(point.x, point.y, point.z);
-                inky.rotateY(-Math.PI/2);
                 this.Inky.setModel(inky);
                 break;
             case 'Clyde':
@@ -327,7 +323,6 @@ export class Game {
                 clyde.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
                 point = this.getPointOnPlane(position.i, position.j, this.curLevel);
                 clyde.position.set(point.x, point.y, point.z);
-                clyde.rotateY(-Math.PI/2);
                 this.Clyde.setModel(clyde);
                 break;
         }

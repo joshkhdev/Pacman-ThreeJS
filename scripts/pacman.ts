@@ -2,7 +2,7 @@ import * as THREE from './lib/three.module.js';
 import { Entity, Objects, Params } from './entity.js';
 
 export class Pacman extends Entity {
-    //public static Size: number;
+    public spawnCell: { i: number, j: number };
     constructor() {
         super();
         Pacman.Size = 10;
@@ -16,17 +16,25 @@ export class Pacman extends Entity {
         this.cell.j += this.movement.x;
     }*/
 
-    public override getX() {
+    public override getX(j?: number) {
         let delta = Params.CellSize / 2;
         let radius = Params.CubeSize / 2;
-	    let x = this.cell.j * Params.CellSize - (radius - delta);
+	    let x = (j? j : this.cell.j) * Params.CellSize - (radius - delta);
         return x;
     }
-    public override getY() {
+
+    public override getY(i?: number) {
         let delta = Params.CellSize / 2;
 	    let radius = Params.CubeSize / 2;
-        let y = -this.cell.i * Params.CellSize + (radius - delta);
+        let y = -(i? i : this.cell.i) * Params.CellSize + (radius - delta);
         return y;
     }
 
+    public setModel(scene: THREE.Group) {
+        this.model = scene;
+    }
+
+    public getModel() {
+        return this.model.clone();
+    }
 }

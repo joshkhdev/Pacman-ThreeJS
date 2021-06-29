@@ -10,7 +10,6 @@ export abstract class Ghost extends Entity {
     public lastCell: { x: number, y: number };
     public lastObject: Objects;
     public spawnCell: { i: number, j: number };
-    private model: THREE.Group;
     protected constructor() {
         super();
         Ghost.Size = 8;

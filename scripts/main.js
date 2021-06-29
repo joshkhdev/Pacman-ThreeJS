@@ -84,8 +84,10 @@ planes.forEach(plane => {
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
 loader.load('./models/Pacman.glb', function (gltf) {
-    let pacman = game.spawnPacman(gltf.scene.children[0].geometry);
-    scene.add(pacman);
+    let pacman = gltf.scene;
+    game.initPacman(pacman);
+    console.log(game.Pacman.getModel());
+    scene.add(game.Pacman.getModel());
 }, undefined, function (error) {
     console.error(error);
 });

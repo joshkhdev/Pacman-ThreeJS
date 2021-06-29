@@ -1,6 +1,6 @@
 import { Entity, Objects, Params } from './entity.js';
 export class Pacman extends Entity {
-    //public static Size: number;
+    spawnCell;
     constructor() {
         super();
         Pacman.Size = 10;
@@ -12,16 +12,22 @@ export class Pacman extends Entity {
         this.cell.i -= this.movement.y;
         this.cell.j += this.movement.x;
     }*/
-    getX() {
+    getX(j) {
         let delta = Params.CellSize / 2;
         let radius = Params.CubeSize / 2;
-        let x = this.cell.j * Params.CellSize - (radius - delta);
+        let x = (j ? j : this.cell.j) * Params.CellSize - (radius - delta);
         return x;
     }
-    getY() {
+    getY(i) {
         let delta = Params.CellSize / 2;
         let radius = Params.CubeSize / 2;
-        let y = -this.cell.i * Params.CellSize + (radius - delta);
+        let y = -(i ? i : this.cell.i) * Params.CellSize + (radius - delta);
         return y;
+    }
+    setModel(scene) {
+        this.model = scene;
+    }
+    getModel() {
+        return this.model.clone();
     }
 }

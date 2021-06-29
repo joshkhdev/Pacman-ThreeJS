@@ -37,8 +37,8 @@ export abstract class Entity { // Поменять public на private, созд
     //public material: any;
     public static Size: number;
     public animationTime: number; // Если это tween.js - рассмотреть удаление/замену
-    public mesh?: THREE.Mesh;
     public type: Objects;
+    protected model: THREE.Group;
     protected constructor() {
         this.cell = { i: 0, j: 0 };
         this.movement = { x: 0, y: 0 };

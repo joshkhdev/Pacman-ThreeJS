@@ -4,7 +4,6 @@ export class Ghost extends Entity {
     lastCell;
     lastObject;
     spawnCell;
-    model;
     constructor() {
         super();
         Ghost.Size = 8;

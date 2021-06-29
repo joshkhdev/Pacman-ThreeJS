@@ -31,8 +31,8 @@ export class Entity {
     //public material: any;
     static Size;
     animationTime; // Если это tween.js - рассмотреть удаление/замену
-    mesh;
     type;
+    model;
     constructor() {
         this.cell = { i: 0, j: 0 };
         this.movement = { x: 0, y: 0 };
