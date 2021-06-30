@@ -1,50 +1,54 @@
-import * as THREE from './three.module.js';
-import { Entity, Objects } from './entity.js';
-class Ghost extends Entity {
+import { Entity, Objects, Params } from './entity.js';
+export class Ghost extends Entity {
     state;
     lastCell;
     lastObject;
-    constructor() {
-        super();
-        this.size = 20;
-        this.animationTime = 135;
+    spawnCell;
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+        this.spawnCell = { i: (i ? i : 0), j: (j ? j : 0) };
+        Ghost.Size = 8;
     }
-    updateCell(grid) {
-        grid[this.cell.i][this.cell.j] = this.lastObject;
-        let i = this.cell.i - this.movement.y;
-        let j = this.cell.j + this.movement.x;
-        this.lastObject = grid[i][j];
-        this.lastCell = { x: this.cell.j, y: this.cell.i };
-        grid[i][j] = this.type;
-        this.cell.i -= this.movement.y;
-        this.cell.j += this.movement.x;
+    getX(j) {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let x = (j ? j : this.cell.j) * Params.CellSize - (radius - delta);
+        return x;
+    }
+    getY(i) {
+        let delta = Params.CellSize / 2;
+        let radius = Params.CubeSize / 2;
+        let y = -(i ? i : this.cell.i) * Params.CellSize + (radius - delta);
+        return y;
+    }
+    setModel(scene) {
+        this.model = scene;
+    }
+    getModel() {
+        return this.model;
     }
 }
 export class Blinky extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.blinky;
-        this.material = new THREE.MeshLambertMaterial({ color: '#f71e1e' });
     }
 }
 export class Pinky extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.pinky;
-        this.material = new THREE.MeshLambertMaterial({ color: '#FF1FF8' });
     }
 }
 export class Inky extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.inky;
-        this.material = new THREE.MeshLambertMaterial({ color: '#FF1FF8' });
     }
 }
 export class Clyde extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.clyde;
-        this.material = new THREE.MeshLambertMaterial({ color: '#FF1FF8' });
     }
 }

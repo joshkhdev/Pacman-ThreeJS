@@ -1,6 +1,6 @@
-import * as THREE from './three.module.js';
-import { OrbitControls } from './orbit-controls.three.module.js';
-import { GLTFLoader } from './gltf-loader.three.module.js';
+import * as THREE from './lib/three.module.js';
+import { OrbitControls } from './lib/orbit-controls.three.module.js';
+import { GLTFLoader } from './lib/gltf-loader.three.module.js';
 import { Game } from './game.js';
 import { Objects, Params } from './entity.js';
 
@@ -11,7 +11,6 @@ const height = window.innerHeight * 0.85;
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
-const pacman_size = 10;
 
 // создание сцены
 var scene = new THREE.Scene();
@@ -25,154 +24,6 @@ viewerBox.appendChild(renderer.domElement);
 // определение положения камеры
 camera.position.set(0, 0, 750);
 controls.update();
-
-// создание куба
-var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);
-var material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-var cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
-// добавление контуров для куба
-let edges = new THREE.EdgesGeometry(geometry);
-let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-scene.add(contour);
-
-// загрузка стен уровня
-var game = new Game();
-drawWalls(game);
-
-function drawWalls(game) {
-    for (let level of game.map)
-    {
-        let walls = game.findObjects(Objects.wall, level.grid); // Поиск всех блоков стен
-        let checkedCells = new Array();
-        clearCheckedCells(checkedCells);
-        let tempWall = [];
-        for (let block of walls) // Обход по каждому блоку стены
-        {
-            let i = block.i; let j = block.j;
-            if (level.grid[i][j] != checkedCells[i][j]) {
-                checkedCells[i][j] = Objects.wall;
-                tempWallAdd(tempWall, i, j);
-                follow(level.grid, 'left', i, j, tempWall, checkedCells);
-                follow(level.grid, 'right', i, j, tempWall, checkedCells);
-
-                let wall = truncateWall(tempWall);
-                tempWall = [];
-                let shape = drawPath(wall);
-                let extrudeSettings = {
-                    steps: 1,
-                    depth: Params.Depth,
-                    bevelEnabled: false,
-                };
-                let geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-                let wallMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: level.color, }));
-                wallMesh.position.set(level.offset.x, level.offset.y, level.offset.z);
-                wallMesh.rotation.setFromVector3(new THREE.Vector3(level.rotation.x, level.rotation.y, level.rotation.z));
-                scene.add(wallMesh);
-            }        
-        }
-    }
-}
-
-function clearCheckedCells(checkedCells) {
-    for (let i = 0; i < Params.Rows; i++)
-        checkedCells[i] = new Array();
-}
-
-function tempWallAdd(tempWall, i, j) {
-    let delta = Params.CellSize / 2;
-	let radius = Params.CubeSize / 2;
-	let center = { x: j * Params.WallSize - (radius - delta), y: -i * Params.WallSize + (radius - delta)}
-	tempWall.push({ x: center.x - delta, y: center.y + delta }); // left top 
-	tempWall.push({ x: center.x + delta, y: center.y + delta }); // right top 
-	tempWall.push({ x: center.x + delta, y: center.y - delta }); // right bottom
-	tempWall.push({ x: center.x - delta, y: center.y - delta }); // left bottom
-}
-
-function follow(level, direction, i, j, tempWall, checkedCells) { // Рекурсивный метод по сборке стены
-    if (!!level[i][j]) return; // Нужна ли эта проверка на undefined?
-
-    if (level[i][j] == Objects.wall) {
-        if (direction == 'right') {
-            if (level[i][j + 1] == Objects.wall && level[i][j + 1] != checkedCells[i][j + 1]) { // Если справа стена
-                tempWallAdd(tempWall, i, j + 1);
-                checkedCells[i][j + 1] = Objects.wall;
-                follow(level, 'right', i, j + 1, tempWall, checkedCells);
-            } else
-                follow(level, 'down', i, j, tempWall, checkedCells);
-        }
-        if (direction == 'down' && i < Params.CubeSize/Params.CellSize) {
-            if (level[i + 1][j] == Objects.wall && level[i + 1][j] != checkedCells[i + 1][j]) { // Если снизу стена
-                tempWallAdd(tempWall, i + 1, j);
-                checkedCells[i + 1][j] = Objects.wall;
-                follow(level, 'down', i + 1, j, tempWall, checkedCells);
-                follow(level, 'left', i + 1, j, tempWall, checkedCells);
-                follow(level, 'right', i + 1, j, tempWall, checkedCells);
-            }
-        }
-        if (direction == 'left') {
-            if (level[i][j - 1] == Objects.wall && level[i][j - 1] != checkedCells[i][j - 1]) { // Если слева стена
-                tempWallAdd(tempWall, i, j - 1);
-                checkedCells[i][j - 1] = Objects.wall;
-                follow(level, 'left', i, j - 1, tempWall, checkedCells);
-            } else
-                follow(level, 'down', i, j, tempWall, checkedCells);
-        }
-    }
-}
-
-function truncateWall(tempWall) {
-    let wall = [];
-    for (let i = 0; i < tempWall.length; i++) {
-        let count = 0;
-        let point = tempWall[i];
-        if (checkPointToSkip(tempWall, point.x, point.y + Params.WallSize))
-            count++;
-        if (checkPointToSkip(tempWall, point.x, point.y - Params.WallSize))
-            count++;
-        if (checkPointToSkip(tempWall, point.x + Params.WallSize, point.y))
-            count++;
-        if (checkPointToSkip(tempWall, point.x - Params.WallSize, point.y))
-            count++;
-        if (count < 4)
-            wall.push(tempWall[i]);
-    }
-    return wall;
-}
-
-function checkPointToSkip(tempWall, x, y) { // Пропуск точек внутри фигуры
-    return tempWall.some(item => item.x == x && item.y == y);
-}
-
-function drawPath(figure) {
-    let head = figure[0];
-    let shape = new THREE.Shape();
-    shape.moveTo(head.x, head.y);
-    checkPath(head, figure, shape);
-    return shape;
-}
-
-function checkPath(head, figure, shape) {
-    let top = findPointAround(head.x, head.y + Params.WallSize, figure);
-    let right = findPointAround(head.x + Params.WallSize, head.y, figure);
-    let left = findPointAround(head.x - Params.WallSize, head.y, figure);
-    let down = findPointAround(head.x, head.y - Params.WallSize, figure);
-
-    let pointsAround = [right, down, left, top];
-    for (let item of pointsAround) {
-        if (!!item) { // Проверка на undefined
-            figure.splice(figure.indexOf(item), 1);
-            shape.lineTo(item.x, item.y);
-            checkPath(item, figure, shape);
-            break;
-        }
-    }
-}
-
-function findPointAround(x, y, figure) {
-    return figure.find(item => item.x == x && item.y == y);
-}
 
 // создание менеджера загруки моделей
 const manager = new THREE.LoadingManager();
@@ -192,21 +43,83 @@ manager.onError = function (url) {
     console.log('There was an error loading ' + url);
 };
 
+// Добавление освещения и луча света на переднюю грань
+let ambientLight = new THREE.AmbientLight(0xfafafa, 0.9);
+scene.add(ambientLight);
+// Подобрать цвет и положение spotlight, подобрать подходящие цвета (оттенки) для стен
+let spotLight = new THREE.SpotLight(0x606060);
+spotLight.position.set(Params.CubeSize * 4, Params.CubeSize * 4, Params.CubeSize * 4);
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+spotLight.shadow.camera.near = 0.1;
+spotLight.shadow.camera.far = 10000;
+spotLight.shadow.camera.fov = 75;
+scene.add(spotLight);    
+
+// создание куба
+var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);
+var material = new THREE.MeshStandardMaterial({ color: 0x000000 });
+var cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+// добавление контуров для куба
+let edges = new THREE.EdgesGeometry(geometry);
+let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
+scene.add(contour);
+
+var game = new Game();
+
+// загрузка стен уровня
+let walls = game.drawLevelWalls();
+walls.forEach(wall => {
+    scene.add(wall);
+});
+
+// зарузка плоскостей с игровыми объектами
+let planes = game.drawLevelPlanes();
+planes.forEach(plane => {
+    scene.add(plane);
+});
+
 // загрузка модели пакмана
 const loader = new GLTFLoader(manager);
-loader.load('./models/pacman.glb', function (gltf) {
-    // создание геометрии и mesh (модели) пакмана
-    let geometry = gltf.scene.children[0].geometry;
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff33 });
-    let pacman = new THREE.Mesh(geometry, material);
-    pacman.scale.set(pacman_size, pacman_size, pacman_size);
-    pacman.rotateY(-Math.PI / 2);
-    pacman.position.set(0, 0, Params.CubeSize / 2 + pacman_size);
+loader.load('./models/Pacman.glb', function (gltf) {
+    let pacman = gltf.scene;
+    game.initPacman(pacman);
+    scene.add(game.Pacman.getModel());
+}, undefined, function (error) {
+    console.error(error);
+});
 
-    // создание контура для пакмана
-    // TODO:
-
-    scene.add(pacman);
+// загрузка модели призрака Blinky
+loader.load('./models/Blinky.glb', function (gltf) {
+    let blinky = gltf.scene;
+    game.initGhost(blinky, 'Blinky');
+    scene.add(game.Blinky.getModel());
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака Pinky
+loader.load('./models/Pinky.glb', function (gltf) {
+    let pinky = gltf.scene;
+    game.initGhost(pinky, 'Pinky');
+    scene.add(game.Pinky.getModel());
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака Inky
+loader.load('./models/Inky.glb', function (gltf) {
+    let inky = gltf.scene;
+    game.initGhost(inky, 'Inky');
+    scene.add(game.Inky.getModel());
+}, undefined, function (error) {
+    console.error(error);
+});
+// загрузка модели призрака Clyde
+loader.load('./models/Clyde.glb', function (gltf) {
+    let clyde = gltf.scene;
+    game.initGhost(clyde, 'Clyde');
+    scene.add(game.Clyde.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
@@ -221,3 +134,22 @@ function animate() {
 
     renderer.render(scene, camera);
 };
+
+const onKeyDown = function (event) {
+    switch(event.keyCode) {
+        case 87: // W
+            game.Pacman.startMovement('up')
+            break;
+        case 83: // S
+            game.Pacman.startMovement('down');
+            break;
+        case 65: // A
+            game.Pacman.startMovement('left');
+            break;
+        case 68: // D
+            game.Pacman.startMovement('right');
+            break;
+    }
+}
+
+addEventListener('keydown', onKeyDown);
