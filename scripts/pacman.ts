@@ -1,5 +1,6 @@
 import * as THREE from './lib/three.module.js';
 import { Direction, Entity, Objects, Params } from './entity.js';
+import { Game } from './game.js';
 
 export class Pacman extends Entity {
     public spawnCell: { i: number, j: number };
@@ -8,13 +9,6 @@ export class Pacman extends Entity {
         Pacman.Size = 10;
         this.type = Objects.pacman;
     }
-
-    /*public updateCell(grid: number[][]) { // Привязать после движения
-        grid[this.cell.i][this.cell.j] = Objects.blank;
-        grid[this.cell.i - this.movement.y][this.cell.j + this.movement.x] = Objects.pacman;
-        this.cell.i -= this.movement.y;
-        this.cell.j += this.movement.x;
-    }*/
 
     public override getX(j?: number) {
         let delta = Params.CellSize / 2;

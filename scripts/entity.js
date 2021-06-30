@@ -77,6 +77,8 @@ export class Entity {
         //this.model.position.set(pos.x, pos.y, pos.z);
         let point = this.getPointOnPlane(this.cell.i, this.cell.j); // TODO: Заменить пересчет позиции на прирост координаты в сторону движения
         this.model.position.set(point.x, point.y, point.z);
+        if (this.type == Objects.pacman)
+            this.eatDot();
     }
     canMove(direction) {
         switch (direction) {
@@ -119,9 +121,20 @@ export class Entity {
             return true;
         }
     }
+    eatDot() {
+        let predicate = dot => {
+            return (dot.i == this.cell.i) && (dot.j == this.cell.j);
+        };
+        let dot = Game.levelDots[Game.curLevel].filter(predicate)[0];
+        if (dot) {
+            let index = Game.levelDots[Game.curLevel].indexOf(dot);
+            Game.levelDots[Game.curLevel].splice(index, 1);
+            dot.mesh.visible = false;
+            Game.eat(dot.type);
+        }
+    }
     faceDirecton(direction) {
         let vector = this.calcRotation(direction);
-        console.log(vector);
         vector.x ? this.model.rotateX(vector.x) : {};
         vector.y ? this.model.rotateY(vector.y) : {};
         vector.z ? this.model.rotateY(vector.z) : {};

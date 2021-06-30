@@ -47,14 +47,14 @@ manager.onError = function (url) {
 let ambientLight = new THREE.AmbientLight(0xfafafa, 0.9);
 scene.add(ambientLight);
 // Подобрать цвет и положение spotlight, подобрать подходящие цвета (оттенки) для стен
-let spotLight = new THREE.SpotLight(0x404040);
+let spotLight = new THREE.SpotLight(0x606060);
 spotLight.position.set(Params.CubeSize * 4, Params.CubeSize * 4, Params.CubeSize * 4);
 spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
 spotLight.shadow.camera.near = 0.1;
 spotLight.shadow.camera.far = 10000;
 spotLight.shadow.camera.fov = 75;
-scene.add(spotLight);
+scene.add(spotLight);    
 
 // создание куба
 var geometry = new THREE.BoxGeometry(Params.CubeSize, Params.CubeSize, Params.CubeSize);

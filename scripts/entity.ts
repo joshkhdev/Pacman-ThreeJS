@@ -88,6 +88,9 @@ export abstract class Entity { // Поменять public на private, созд
         //this.model.position.set(pos.x, pos.y, pos.z);
         let point = this.getPointOnPlane(this.cell.i, this.cell.j); // TODO: Заменить пересчет позиции на прирост координаты в сторону движения
         this.model.position.set(point.x, point.y, point.z);
+
+        if (this.type == Objects.pacman)
+            this.eatDot();
     }
 
     public canMove(direction: Direction): boolean {
@@ -125,15 +128,21 @@ export abstract class Entity { // Поменять public на private, созд
             return false;
         } else {
             return true;
-        }
-        
+        }   
     }
 
-    /*public canMove(x: number, y: number, grid: number[][]) {
-        let i = this.cell.i - y; let j = this.cell.j + x;
-        if ((i >= 0 && i < Params.CubeSize/Params.CellSize) && (j >= 0 && j < Params.CubeSize/Params.CellSize))
-            return grid[i][j] == Objects.blank || grid[i][j] == Objects.dot
-    }*/
+    private eatDot() {
+        let predicate = dot => {
+            return (dot.i == this.cell.i) && (dot.j == this.cell.j)
+        };
+        let dot = Game.levelDots[Game.curLevel].filter(predicate)[0];
+        if (dot) {
+            let index = Game.levelDots[Game.curLevel].indexOf(dot);
+            Game.levelDots[Game.curLevel].splice(index, 1);
+            dot.mesh.visible = false;
+            Game.eat(dot.type);
+        }
+    }
 
     /*public stopMovement(x: number, y: number, grid: number[][]) { // А нужны ли тут параметры?
         //clearInterval(this.moveInterval);
@@ -144,21 +153,12 @@ export abstract class Entity { // Поменять public на private, созд
         //this.moveDirection = 'none';
         this.posToMove = null;
     }*/
-    
-    /*public step(x: number, y: number) {
-        this.movement.x = x;
-        this.movement.y = y;
-        this.posToMove = this.mesh.position.clone(); // ?
-        this.posToMove = new THREE.Vector3(this.posToMove.x + x * Params.CellSize, this.posToMove.y + y * Params.CellSize, this.posToMove.z);
-    }*/
-    //public abstract updateCell(grid: number[][]);
 
     public abstract getX(j?: number);
     public abstract getY(i?: number);
 
     public faceDirecton(direction: Direction): void {
         let vector = this.calcRotation(direction);
-        console.log(vector);
         vector.x ? this.model.rotateX(vector.x) : {};
         vector.y ? this.model.rotateY(vector.y) : {};
         vector.z ? this.model.rotateY(vector.z) : {};

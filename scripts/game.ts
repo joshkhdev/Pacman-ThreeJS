@@ -4,6 +4,8 @@ import { Entity, Objects, Params } from './entity.js';
 import { Pacman } from './pacman.js';
 import { Ghost, Blinky, Pinky, Inky, Clyde, GhostName } from './ghosts.js';
 
+type FoodType = 'dot' | 'cherry' | 'powerup' | 'ghost';
+
 interface Point {
     x: number;
     y: number;
@@ -15,13 +17,12 @@ interface Index {
 }
 
 interface LevelDots {
-    dots: Dot[],
-    name: LevelType
-}
-
-interface LevelCherries {
-    cherries: Cherry[],
-    name: LevelType
+    'front': Dot[],
+    'back': Dot[],
+    'right': Dot[],
+    'left': Dot[],
+    'top': Dot[],
+    'bottom': Dot[]
 }
 
 class Dot {
@@ -29,11 +30,13 @@ class Dot {
     public readonly i: number;
     public readonly j: number;
     public mesh: THREE.Mesh;
+    public type: FoodType;
 
     constructor(i: number, j: number) {
         this.i = i;
         this.j = j;
         this.setMesh();
+        this.type = 'dot';
     }
     public setMesh() {
         let sphere = new THREE.SphereGeometry(Dot.Size, Dot.Size, Dot.Size);
@@ -63,6 +66,7 @@ class Cherry extends Dot {
     constructor(i: number, j: number) {
         super(i, j);
         this.setMesh();
+        this.type = 'cherry';
     }
     public setMesh() {
         let cherry_geometry = new THREE.SphereGeometry(Cherry.Length, Cherry.Height, Cherry.Width);
@@ -106,22 +110,23 @@ class Cherry extends Dot {
 
 export class Game {
     public static readonly map: Map = MAP;
+    public static levelDots: LevelDots;
     public static curLevel: LevelType;
+    public static score: number;
+    public static scoreText: HTMLElement;
     private levels: Level[];
-    public score: number;
-    public scoreText: HTMLElement;
     private Pacman: Pacman;
     public Blinky: Blinky;
     public Pinky: Pinky;
     public Inky: Inky;
     public Clyde: Clyde;
     private sides = [ 'front', 'back', 'right', 'left', 'top', 'bottom' ];
-    private planes = {};
+    private static planes = {};
 
     constructor() {
         Game.curLevel = 'front';
-        this.score = 0;
-        this.scoreText = document.getElementById('score');
+        Game.score = 0;
+        Game.scoreText = document.getElementById('score');
         this.setLevels();
     }
 
@@ -142,38 +147,45 @@ export class Game {
         return array;
     }
 
-    private drawDots() {
+    private loadDots(): void {
         let dots: Dot[] = [];
-        let levelDots: LevelDots[] = [];
+        this.clearLevelDots();
         for (let level of this.levels)
         {
-            let indexes = this.findObjects(Objects.dot, level.grid); // Поиск всех единиц еды
-            for (let index of indexes)
+            let dotsIndexes = this.findObjects(Objects.dot, level.grid); // Поиск всех единиц еды
+            for (let index of dotsIndexes)
             {
                 let dot = new Dot(index.i, index.j);
                 dots.push(dot);
             }
-            levelDots.push({ dots: dots, name: level.name });
-            dots = [];
-        }
-        return levelDots;
-    }
-
-    public drawCherries() {
-        let cherries: Cherry[] = [];
-        let levelCherries: LevelCherries[] = [];
-        for (let level of this.levels)
-        {
-            let indexes = this.findObjects(Objects.cherry, level.grid); // Поиск всех единиц еды
-            for (let index of indexes)
+            let cherriesIndexes = this.findObjects(Objects.cherry, level.grid); // Поиск всех вишен
+            for (let index of cherriesIndexes)
             {
                 let cherry = new Cherry(index.i, index.j);
-                cherries.push(cherry);
+                dots.push(cherry);
             }
-            levelCherries.push({ cherries: cherries, name: level.name });
-            cherries = [];
+            Game.levelDots[level.name] = dots;
+            dots = [];
         }
-        return levelCherries;
+    }
+
+    public static eat(type: FoodType) {
+        switch(type) {
+            case 'dot':
+                Game.score += 10;
+                Game.scoreText.innerText = `Счет: ${Game.score}`;
+                break;
+            case 'cherry':
+                Game.score += 100;
+                Game.scoreText.innerText = `Счет: ${Game.score}`;
+                break;
+            case 'powerup':
+                // TODO
+                break;
+            case 'ghost':
+                // TODO
+                break;
+        }
     }
     
     public drawLevelPlanes() {
@@ -187,32 +199,21 @@ export class Game {
                 y: Game.map[side].offset.y ? (Game.map[side].offset.y > 0 ? Game.map[side].offset.y + Params.Depth/2 : Game.map[side].offset.y - Params.Depth/2) : 0,
                 z: Game.map[side].offset.z ? (Game.map[side].offset.z > 0 ? Game.map[side].offset.z + Params.Depth/2 : Game.map[side].offset.z - Params.Depth/2) : 0
             }
-            this.planes[side] = new THREE.Mesh(geometry, material);
-            this.planes[side].position.set(offset.x, offset.y, offset.z);
-            this.planes[side].setRotationFromEuler(new THREE.Euler(Game.map[side].rotation.x, Game.map[side].rotation.y, Game.map[side].rotation.z));
+            Game.planes[side] = new THREE.Mesh(geometry, material);
+            Game.planes[side].position.set(offset.x, offset.y, offset.z);
+            Game.planes[side].setRotationFromEuler(new THREE.Euler(Game.map[side].rotation.x, Game.map[side].rotation.y, Game.map[side].rotation.z));
         }
 
-        let levelDots = this.drawDots();
-        for (let level of levelDots)
-        {
-            for (let dot of level.dots)
-            {
-                this.planes[level.name].add(dot.mesh.clone());
-            }
-        }
+        this.loadDots();
 
-        let levelCherries = this.drawCherries();
-        for (let level of levelCherries)
-        {
-            for (let cherry of level.cherries)
-            {
-                this.planes[level.name].add(cherry.mesh.clone());
-            }
-        }
+        this.sides.forEach(side => {
+            for (let dot of Game.levelDots[side])
+                Game.planes[side].add(dot.mesh);
+        });
 
         let planesArray = [];
         this.sides.forEach(side => {
-            planesArray.push(this.planes[side]);
+            planesArray.push(Game.planes[side]);
         });
         return planesArray;
     }
@@ -324,12 +325,23 @@ export class Game {
         }
     }
     
-    public clearCheckedCells(checkedCells) {
+    private clearCheckedCells(checkedCells): void {
         for (let i = 0; i < Params.Rows; i++)
             checkedCells[i] = [];
     }
+
+    private clearLevelDots(): void {
+        Game.levelDots = {
+            'front': [],
+            'back': [],
+            'right': [],
+            'left': [],
+            'top': [],
+            'bottom': []
+        }
+    }
     
-    private tempWallAdd(tempWall: Point[], i: number, j: number) {
+    private tempWallAdd(tempWall: Point[], i: number, j: number): void {
         let cellDelta = Params.CellSize / 2;
         let wallDelta = Params.WallSize / 2;
         let radius = Params.CubeSize / 2;
@@ -340,7 +352,7 @@ export class Game {
         tempWall.push({ x: center.x - wallDelta, y: center.y - wallDelta }); // left bottom
     }
 
-    private follow(level, direction, i, j, tempWall, checkedCells) { // Рекурсивный метод по сборке стены
+    private follow(level, direction, i, j, tempWall, checkedCells): void { // Рекурсивный метод по сборке стены
         if (level[i][j] == Objects.wall) {
             switch (direction) {
                 case 'right':
@@ -491,6 +503,11 @@ export class Game {
         return vector;
     }
     
+    public static removeDot(dot: Dot, level: LevelType) {
+        let object = Game.planes[level].children.find(item => item.mesh == dot.mesh);
+        console.log(object);
+    }
+
     // Get и Set методы
     public static getLevel() {
         return Game.curLevel;
