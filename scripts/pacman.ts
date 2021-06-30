@@ -1,10 +1,10 @@
 import * as THREE from './lib/three.module.js';
-import { Entity, Objects, Params } from './entity.js';
+import { Direction, Entity, Objects, Params } from './entity.js';
 
 export class Pacman extends Entity {
     public spawnCell: { i: number, j: number };
-    constructor() {
-        super();
+    constructor(i?: number, j?: number, direction?: Direction) {
+        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
         Pacman.Size = 10;
         this.type = Objects.pacman;
     }
@@ -35,6 +35,6 @@ export class Pacman extends Entity {
     }
 
     public getModel() {
-        return this.model.clone();
+        return this.model;
     }
 }

@@ -1,5 +1,5 @@
 import * as THREE from './lib/three.module.js';
-import { Entity, Objects, Params } from './entity.js';
+import { Entity, Objects, Params, Direction } from './entity.js';
 import { LevelType, MAP } from './levels.js';
 
 export type GhostState = 'chase' | 'scatter' | 'fright';
@@ -10,8 +10,9 @@ export abstract class Ghost extends Entity {
     public lastCell: { x: number, y: number };
     public lastObject: Objects;
     public spawnCell: { i: number, j: number };
-    protected constructor() {
-        super();
+    protected constructor(i?: number, j?: number, direction?: Direction) {
+        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+        this.spawnCell = { i: (i? i : 0), j: (j? j : 0) };
         Ghost.Size = 8;
     }
     
@@ -34,7 +35,7 @@ export abstract class Ghost extends Entity {
     }
 
     public getModel() {
-        return this.model.clone();
+        return this.model;
     }
 
     /*public updateCell(grid: number[][]) {
@@ -49,29 +50,29 @@ export abstract class Ghost extends Entity {
 }
 
 export class Blinky extends Ghost {
-    constructor() {
-        super();
+    constructor(i?: number, j?: number, direction?: Direction) {
+        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
         this.type = Objects.blinky;
     }
 }
 
 export class Pinky extends Ghost {
-    constructor() {
-        super();
+    constructor(i?: number, j?: number, direction?: Direction) {
+        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
         this.type = Objects.pinky;
     }
 }
 
 export class Inky extends Ghost {
-    constructor() {
-        super();
+    constructor(i?: number, j?: number, direction?: Direction) {
+        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
         this.type = Objects.inky;
     }
 }
 
 export class Clyde extends Ghost {
-    constructor() {
-        super();
+    constructor(i?: number, j?: number, direction?: Direction) {
+        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
         this.type = Objects.clyde;
     }
 }

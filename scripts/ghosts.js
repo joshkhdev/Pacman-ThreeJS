@@ -4,8 +4,9 @@ export class Ghost extends Entity {
     lastCell;
     lastObject;
     spawnCell;
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+        this.spawnCell = { i: (i ? i : 0), j: (j ? j : 0) };
         Ghost.Size = 8;
     }
     getX(j) {
@@ -24,30 +25,30 @@ export class Ghost extends Entity {
         this.model = scene;
     }
     getModel() {
-        return this.model.clone();
+        return this.model;
     }
 }
 export class Blinky extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.blinky;
     }
 }
 export class Pinky extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.pinky;
     }
 }
 export class Inky extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.inky;
     }
 }
 export class Clyde extends Ghost {
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         this.type = Objects.clyde;
     }
 }

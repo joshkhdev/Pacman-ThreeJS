@@ -86,7 +86,6 @@ const loader = new GLTFLoader(manager);
 loader.load('./models/Pacman.glb', function (gltf) {
     let pacman = gltf.scene;
     game.initPacman(pacman);
-    console.log(game.Pacman.getModel());
     scene.add(game.Pacman.getModel());
 }, undefined, function (error) {
     console.error(error);
@@ -135,3 +134,26 @@ function animate() {
 
     renderer.render(scene, camera);
 };
+
+const onKeyUp = function (event) {
+    switch(event.keyCode) {
+        case 87: // W
+            console.log('Pressed W');
+            game.Pacman.startMovement('up')
+            break;
+        case 83: // S
+            console.log('Pressed S');
+            game.Pacman.startMovement('down');
+            break;
+        case 65: // A
+            console.log('Pressed A');
+            game.Pacman.startMovement('left');
+            break;
+        case 68: // D
+            console.log('Pressed D');
+            game.Pacman.startMovement('right');
+            break;
+    }
+}
+
+addEventListener('keyup', onKeyUp);

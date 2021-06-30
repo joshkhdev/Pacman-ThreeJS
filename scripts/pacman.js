@@ -1,8 +1,8 @@
 import { Entity, Objects, Params } from './entity.js';
 export class Pacman extends Entity {
     spawnCell;
-    constructor() {
-        super();
+    constructor(i, j, direction) {
+        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
         Pacman.Size = 10;
         this.type = Objects.pacman;
     }
@@ -28,6 +28,6 @@ export class Pacman extends Entity {
         this.model = scene;
     }
     getModel() {
-        return this.model.clone();
+        return this.model;
     }
 }

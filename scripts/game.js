@@ -78,8 +78,8 @@ class Cherry extends Dot {
     }
 }
 export class Game {
-    curLevel;
     static map = MAP;
+    static curLevel;
     levels;
     score;
     scoreText;
@@ -91,7 +91,7 @@ export class Game {
     sides = ['front', 'back', 'right', 'left', 'top', 'bottom'];
     planes = {};
     constructor() {
-        this.curLevel = 'front';
+        Game.curLevel = 'front';
         this.score = 0;
         this.scoreText = document.getElementById('score');
         this.setLevels();
@@ -217,12 +217,12 @@ export class Game {
         return wallArray;
     }
     initPacman(scene) {
-        let position = this.findObjects(Objects.pacman, Game.map[this.curLevel].grid)[0];
-        this.Pacman = new Pacman();
-        this.Pacman.spawnCell = this.findObjects(Objects.pacman, Game.map[this.curLevel].grid)[0];
+        let position = this.findObjects(Objects.pacman, Game.map[Game.curLevel].grid)[0];
+        this.Pacman = new Pacman(position.i, position.j);
+        this.Pacman.spawnCell = this.findObjects(Objects.pacman, Game.map[Game.curLevel].grid)[0];
         let pacman = scene;
         //pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
-        let point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+        let point = this.getPointOnPlane(position.i, position.j, Game.curLevel);
         pacman.position.set(point.x, point.y, point.z);
         this.Pacman.setModel(pacman);
         pacman.rotateY(-Math.PI / 2);
@@ -232,42 +232,38 @@ export class Game {
         let point;
         switch (ghost) {
             case 'Blinky':
-                position = this.findObjects(Objects.blinky, Game.map[this.curLevel].grid)[0];
-                this.Blinky = new Blinky();
-                this.Blinky.spawnCell = position;
+                position = this.findObjects(Objects.blinky, Game.map[Game.curLevel].grid)[0];
+                this.Blinky = new Blinky(position.i, position.j);
                 let blinky = scene;
                 blinky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
-                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                point = this.getPointOnPlane(position.i, position.j, Game.curLevel);
                 blinky.position.set(point.x, point.y, point.z);
                 this.Blinky.setModel(blinky);
                 break;
             case 'Pinky':
-                position = this.findObjects(Objects.pinky, Game.map[this.curLevel].grid)[0];
-                this.Pinky = new Pinky();
-                this.Pinky.spawnCell = position;
+                position = this.findObjects(Objects.pinky, Game.map[Game.curLevel].grid)[0];
+                this.Pinky = new Pinky(position.i, position.j);
                 let pinky = scene;
                 pinky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
-                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                point = this.getPointOnPlane(position.i, position.j, Game.curLevel);
                 pinky.position.set(point.x, point.y, point.z);
                 this.Pinky.setModel(pinky);
                 break;
             case 'Inky':
-                position = this.findObjects(Objects.inky, Game.map[this.curLevel].grid)[0];
-                this.Inky = new Inky();
-                this.Inky.spawnCell = position;
+                position = this.findObjects(Objects.inky, Game.map[Game.curLevel].grid)[0];
+                this.Inky = new Inky(position.i, position.j);
                 let inky = scene;
                 inky.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
-                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                point = this.getPointOnPlane(position.i, position.j, Game.curLevel);
                 inky.position.set(point.x, point.y, point.z);
                 this.Inky.setModel(inky);
                 break;
             case 'Clyde':
-                position = this.findObjects(Objects.clyde, Game.map[this.curLevel].grid)[0];
-                this.Clyde = new Clyde();
-                this.Clyde.spawnCell = position;
+                position = this.findObjects(Objects.clyde, Game.map[Game.curLevel].grid)[0];
+                this.Clyde = new Clyde(position.i, position.j);
                 let clyde = scene;
                 clyde.scale.set(Ghost.Size, Ghost.Size, Ghost.Size);
-                point = this.getPointOnPlane(position.i, position.j, this.curLevel);
+                point = this.getPointOnPlane(position.i, position.j, Game.curLevel);
                 clyde.position.set(point.x, point.y, point.z);
                 this.Clyde.setModel(clyde);
                 break;
@@ -431,11 +427,11 @@ export class Game {
         return vector;
     }
     // Get и Set методы
-    getLevel() {
-        return this.curLevel;
+    static getLevel() {
+        return Game.curLevel;
     }
-    setLevel(level) {
-        this.curLevel = level;
+    static setLevel(level) {
+        Game.curLevel = level;
     }
     /*public setLevel(level: LevelType) {
         this.switchLevel(); // TODO: Переход на другой уровень
