@@ -46,6 +46,8 @@ export class Entity {
         }
         else {
             console.log(`Moving ${direction}`);
+            if (this.type == Objects.pacman)
+                this.faceDirecton(direction);
             this.moveDirection = direction;
             clearInterval(this.timer);
             this.timer = null;
@@ -53,7 +55,7 @@ export class Entity {
                 this.step();
                 if (!this.canMove(direction))
                     clearInterval(this.timer);
-            }, 100);
+            }, 200);
         }
     }
     step() {
@@ -117,27 +119,57 @@ export class Entity {
             return true;
         }
     }
-    /*public canMove(x: number, y: number, grid: number[][]) {
-        let i = this.cell.i - y; let j = this.cell.j + x;
-        if ((i >= 0 && i < Params.CubeSize/Params.CellSize) && (j >= 0 && j < Params.CubeSize/Params.CellSize))
-            return grid[i][j] == Objects.blank || grid[i][j] == Objects.dot
-    }*/
-    stopMovement(x, y, grid) {
-        //clearInterval(this.moveInterval);
-        //cancelAnimationFrame(this.reqMove);
-        //this.moveInterval = null;
-        //this.reqMove = null;
-        //this.movement = { x: 0, y: 0 };
-        //this.moveDirection = 'none';
-        this.posToMove = null;
+    faceDirecton(direction) {
+        let vector = this.calcRotation(direction);
+        console.log(vector);
+        vector.x ? this.model.rotateX(vector.x) : {};
+        vector.y ? this.model.rotateY(vector.y) : {};
+        vector.z ? this.model.rotateY(vector.z) : {};
+        //this.model.rotation.set(this.model.rotation.x + vector.x, this.model.rotation.y + vector.y, this.model.rotation.z + vector.z);
     }
-    /*public step(x: number, y: number) {
-        this.movement.x = x;
-        this.movement.y = y;
-        this.posToMove = this.mesh.position.clone(); // ?
-        this.posToMove = new THREE.Vector3(this.posToMove.x + x * Params.CellSize, this.posToMove.y + y * Params.CellSize, this.posToMove.z);
-    }*/
-    //public abstract updateCell(grid: number[][]);
+    calcRotation(direction) {
+        let x = 0, y = 0, z = 0;
+        switch (Game.curLevel) {
+            case 'front':
+                switch (direction) {
+                    case 'up':
+                        if (this.moveDirection == 'right')
+                            x = Math.PI / 2;
+                        if (this.moveDirection == 'left')
+                            x = -Math.PI / 2;
+                        if (this.moveDirection == 'down')
+                            x = Math.PI;
+                        break;
+                    case 'down':
+                        if (this.moveDirection == 'right')
+                            x = -Math.PI / 2;
+                        if (this.moveDirection == 'left')
+                            x = Math.PI / 2;
+                        if (this.moveDirection == 'up')
+                            x = Math.PI;
+                        break;
+                    case 'left':
+                        if (this.moveDirection == 'right')
+                            x = Math.PI;
+                        if (this.moveDirection == 'up')
+                            x = Math.PI / 2;
+                        if (this.moveDirection == 'down')
+                            x = -Math.PI / 2;
+                        break;
+                    case 'right':
+                        if (this.moveDirection == 'left')
+                            x = Math.PI;
+                        if (this.moveDirection == 'up')
+                            x = -Math.PI / 2;
+                        if (this.moveDirection == 'down')
+                            x = Math.PI / 2;
+                        break;
+                }
+                break;
+            // TODO: Остальные грани
+        }
+        return new THREE.Vector3(x, y, z);
+    }
     rotateX(angle) {
         this.model.rotateX(angle);
     }

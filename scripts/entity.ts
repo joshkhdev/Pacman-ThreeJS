@@ -35,7 +35,7 @@ interface Cell {
 
 export abstract class Entity { // Поменять public на private, создать get/set методы
     public cell: Cell;
-    private moveDirection: Direction;
+    protected moveDirection: Direction;
     //public movement: { x: number, y: number }; // Непонятно, почему "движение" это X и Y
     //public moveInterval?: any;
     //public reqMove?: any;
@@ -56,6 +56,8 @@ export abstract class Entity { // Поменять public на private, созд
             return;
         } else {
             console.log(`Moving ${direction}`);
+            if (this.type == Objects.pacman)
+                this.faceDirecton(direction);
             this.moveDirection = direction;
             clearInterval(this.timer);
             this.timer = null;
@@ -63,7 +65,7 @@ export abstract class Entity { // Поменять public на private, созд
                 this.step();
                 if (!this.canMove(direction))
                     clearInterval(this.timer);
-            }, 100);
+            }, 200);
         }
     }
 
@@ -133,7 +135,7 @@ export abstract class Entity { // Поменять public на private, созд
             return grid[i][j] == Objects.blank || grid[i][j] == Objects.dot
     }*/
 
-    public stopMovement(x: number, y: number, grid: number[][]) { // А нужны ли тут параметры?
+    /*public stopMovement(x: number, y: number, grid: number[][]) { // А нужны ли тут параметры?
         //clearInterval(this.moveInterval);
         //cancelAnimationFrame(this.reqMove);
         //this.moveInterval = null;
@@ -141,10 +143,8 @@ export abstract class Entity { // Поменять public на private, созд
         //this.movement = { x: 0, y: 0 };
         //this.moveDirection = 'none';
         this.posToMove = null;
-    }
+    }*/
     
-    public abstract getX(j?: number);
-    public abstract getY(i?: number);
     /*public step(x: number, y: number) {
         this.movement.x = x;
         this.movement.y = y;
@@ -152,7 +152,64 @@ export abstract class Entity { // Поменять public на private, созд
         this.posToMove = new THREE.Vector3(this.posToMove.x + x * Params.CellSize, this.posToMove.y + y * Params.CellSize, this.posToMove.z);
     }*/
     //public abstract updateCell(grid: number[][]);
-    
+
+    public abstract getX(j?: number);
+    public abstract getY(i?: number);
+
+    public faceDirecton(direction: Direction): void {
+        let vector = this.calcRotation(direction);
+        console.log(vector);
+        vector.x ? this.model.rotateX(vector.x) : {};
+        vector.y ? this.model.rotateY(vector.y) : {};
+        vector.z ? this.model.rotateY(vector.z) : {};
+        //this.model.rotation.set(this.model.rotation.x + vector.x, this.model.rotation.y + vector.y, this.model.rotation.z + vector.z);
+    }
+
+    private calcRotation(direction: Direction) {
+        let x = 0, y = 0, z = 0;
+        switch(Game.curLevel)
+        {
+            case 'front':
+                switch(direction) {
+                    case 'up':
+                        if (this.moveDirection == 'right')
+                            x = Math.PI/2;
+                        if (this.moveDirection == 'left')
+                            x = -Math.PI/2;
+                        if (this.moveDirection == 'down')
+                            x = Math.PI;
+                        break;
+                    case 'down':
+                        if (this.moveDirection == 'right')
+                            x = -Math.PI/2;
+                        if (this.moveDirection == 'left')
+                            x = Math.PI/2;
+                        if (this.moveDirection == 'up')
+                            x = Math.PI;
+                        break;
+                    case 'left':
+                        if (this.moveDirection == 'right')
+                            x = Math.PI;
+                        if (this.moveDirection == 'up')
+                            x = Math.PI/2;
+                        if (this.moveDirection == 'down')
+                            x = -Math.PI/2;
+                        break;
+                    case 'right':
+                        if (this.moveDirection == 'left')
+                            x = Math.PI;
+                        if (this.moveDirection == 'up')
+                            x = -Math.PI/2;
+                        if (this.moveDirection == 'down')
+                            x = Math.PI/2;
+                        break;
+                }
+                break;
+            // TODO: Остальные грани
+        }
+        return new THREE.Vector3(x, y, z);
+    }
+
     public rotateX(angle){
         this.model.rotateX(angle);
     }

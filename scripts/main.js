@@ -135,7 +135,7 @@ function animate() {
     renderer.render(scene, camera);
 };
 
-const onKeyUp = function (event) {
+const onKeyDown = function (event) {
     switch(event.keyCode) {
         case 87: // W
             console.log('Pressed W');
@@ -156,4 +156,4 @@ const onKeyUp = function (event) {
     }
 }
 
-addEventListener('keyup', onKeyUp);
+addEventListener('keydown', onKeyDown);

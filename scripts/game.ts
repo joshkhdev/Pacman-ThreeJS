@@ -271,7 +271,7 @@ export class Game {
 
     public initPacman(scene): void {
         let position = this.findObjects(Objects.pacman, Game.map[Game.curLevel].grid)[0];
-        this.Pacman = new Pacman(position.i, position.j);
+        this.Pacman = new Pacman(position.i, position.j, 'right');
         this.Pacman.spawnCell = this.findObjects(Objects.pacman, Game.map[Game.curLevel].grid)[0];
         let pacman = scene;
         pacman.scale.set(Pacman.Size, Pacman.Size, Pacman.Size);
