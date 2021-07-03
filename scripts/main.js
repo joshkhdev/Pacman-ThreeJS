@@ -2,12 +2,12 @@ import * as THREE from './lib/three.module.js';
 import { OrbitControls } from './lib/orbit-controls.three.module.js';
 import { GLTFLoader } from './lib/gltf-loader.three.module.js';
 import { Game } from './game.js';
-import { Objects, Params } from './entity.js';
+import { Params } from './entity.js';
 
 // значение для canvas по умолчанию
 const fov = 75;
 const width = window.innerWidth * 0.8;
-const height = window.innerHeight * 0.85;
+const height = parseInt(window.innerHeight * 0.95);
 const aspect = width / height;
 const near = 0.1;
 const far = 10000;
@@ -22,7 +22,7 @@ let viewerBox = document.getElementById('viewer');
 viewerBox.appendChild(renderer.domElement);
 
 // определение положения камеры
-camera.position.set(0, 0, 750);
+camera.position.set(0, 0, Params.CubeSize * 1.5);
 controls.update();
 
 // создание менеджера загруки моделей
@@ -65,20 +65,20 @@ scene.add(cube);
 // добавление контуров для куба
 let edges = new THREE.EdgesGeometry(geometry);
 let contour = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:  0xfafafa }));
-scene.add(contour);
+cube.add(contour);
 
 var game = new Game();
 
 // загрузка стен уровня
 let walls = game.drawLevelWalls();
 walls.forEach(wall => {
-    scene.add(wall);
+    cube.add(wall);
 });
 
 // зарузка плоскостей с игровыми объектами
 let planes = game.drawLevelPlanes();
 planes.forEach(plane => {
-    scene.add(plane);
+    cube.add(plane);
 });
 
 // загрузка модели пакмана
@@ -86,7 +86,7 @@ const loader = new GLTFLoader(manager);
 loader.load('./models/Pacman.glb', function (gltf) {
     let pacman = gltf.scene;
     game.initPacman(pacman);
-    scene.add(game.Pacman.getModel());
+    cube.add(game.Pacman.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
@@ -95,7 +95,7 @@ loader.load('./models/Pacman.glb', function (gltf) {
 loader.load('./models/Blinky.glb', function (gltf) {
     let blinky = gltf.scene;
     game.initGhost(blinky, 'Blinky');
-    scene.add(game.Blinky.getModel());
+    cube.add(game.Blinky.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
@@ -103,7 +103,7 @@ loader.load('./models/Blinky.glb', function (gltf) {
 loader.load('./models/Pinky.glb', function (gltf) {
     let pinky = gltf.scene;
     game.initGhost(pinky, 'Pinky');
-    scene.add(game.Pinky.getModel());
+    cube.add(game.Pinky.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
@@ -111,7 +111,7 @@ loader.load('./models/Pinky.glb', function (gltf) {
 loader.load('./models/Inky.glb', function (gltf) {
     let inky = gltf.scene;
     game.initGhost(inky, 'Inky');
-    scene.add(game.Inky.getModel());
+    cube.add(game.Inky.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
@@ -119,7 +119,7 @@ loader.load('./models/Inky.glb', function (gltf) {
 loader.load('./models/Clyde.glb', function (gltf) {
     let clyde = gltf.scene;
     game.initGhost(clyde, 'Clyde');
-    scene.add(game.Clyde.getModel());
+    cube.add(game.Clyde.getModel());
 }, undefined, function (error) {
     console.error(error);
 });
@@ -134,6 +134,7 @@ function animate() {
 
     renderer.render(scene, camera);
 };
+
 
 const onKeyDown = function (event) {
     switch(event.keyCode) {
@@ -155,5 +156,14 @@ const onKeyDown = function (event) {
             break;
     }
 }
-
 addEventListener('keydown', onKeyDown);
+
+function ResizeCanvas () {
+    let width = window.innerWidth * 0.8;
+    let height = parseInt(window.innerHeight * 0.95);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(width, height);
+}
+addEventListener('resize', ResizeCanvas, false);

@@ -37,7 +37,7 @@ h6 {
 
 .game {
     display: grid;
-    grid-template: 0.5fr 4fr / 2fr 1fr;
+    grid-template: 1fr 19fr / 4fr 1fr;
     grid-template-areas:
         "top-bar instruction"
         "viewer instruction";
