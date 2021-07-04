@@ -1,32 +1,8 @@
 import * as THREE from './lib/three.module.js';
-import { MAP, LevelType } from './levels.js';
+import { Objects, Params } from './levels.js';
 import { Game } from './game.js';
 
 export type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
-
-export const Params = {
-    CellSize: 20,
-    CubeSize: 500,
-    WallSize: 18,
-    Depth: 20,
-    Rows: 25,
-    Cols: 25
-}
-
-export enum Objects {
-    blank, // 0
-    wall, // 1
-    //dynwall,
-    //spawnwall,
-    dot, // 2
-    cherry, // 3
-    powerup, // 4
-    pacman, // 5
-    blinky, // 6
-    pinky, // 7
-    inky, // 8
-    clyde // 9
-}
 
 interface Cell {
     i: number,
@@ -34,8 +10,10 @@ interface Cell {
 }
 
 export abstract class Entity { // Поменять public на private, создать get/set методы
+    private readonly StepInterval = 200;
     public cell: Cell;
     protected moveDirection: Direction;
+    protected face: Direction;
     //public movement: { x: number, y: number }; // Непонятно, почему "движение" это X и Y
     //public moveInterval?: any;
     //public reqMove?: any;
@@ -45,28 +23,29 @@ export abstract class Entity { // Поменять public на private, созд
     public type: Objects;
     private timer: any;
     protected model: THREE.Group;
-    protected constructor(i?: number, j?: number, direction?: Direction) {
+    protected constructor(i?: number, j?: number, face?: Direction) {
         this.cell = { i: (i? i : 0), j: (j? j : 0) };
-        this.moveDirection = direction? direction : 'none';
+        this.face = face? face : 'none';
+        this.moveDirection = 'none';
         //this.movement = { x: 0, y: 0 };
     }
 
     public startMovement(direction: Direction) {
-        if (!this.canMove(direction)) {
+        if (this.moveDirection == direction)
             return;
-        } else {
-            console.log(`Moving ${direction}`);
-            if (this.type == Objects.pacman)
-                this.faceDirecton(direction);
-            this.moveDirection = direction;
-            clearInterval(this.timer);
-            this.timer = null;
-            this.timer = setInterval(() => {
-                this.step();
-                if (!this.canMove(direction))
-                    clearInterval(this.timer);
-            }, 200);
-        }
+        if (!this.canMove(direction))
+            return;
+        console.log(`Moving ${direction}`);
+        if (this.type == Objects.pacman)
+            this.faceDirecton(direction);
+        this.moveDirection = direction;
+        clearInterval(this.timer);
+        this.timer = null;
+        this.timer = setInterval(() => {
+            this.step();
+            if (!this.canMove(direction))
+                clearInterval(this.timer);
+        }, this.StepInterval);
     }
 
     private step() {
@@ -84,10 +63,11 @@ export abstract class Entity { // Поменять public на private, созд
                 this.cell.j += 1;
                 break;
         }
-        //let pos = this.model.position;
-        //this.model.position.set(pos.x, pos.y, pos.z);
-        let point = this.getPointOnPlane(this.cell.i, this.cell.j); // TODO: Заменить пересчет позиции на прирост координаты в сторону движения
-        this.model.position.set(point.x, point.y, point.z);
+
+        let pos = this.model.position;
+        let delta = this.calcMoveVector();
+        delta.multiplyScalar(Params.CellSize);
+        pos.add(delta);
 
         if (this.type == Objects.pacman)
             this.eatDot();
@@ -158,50 +138,76 @@ export abstract class Entity { // Поменять public на private, созд
     public abstract getY(i?: number);
 
     public faceDirecton(direction: Direction): void {
-        let vector = this.calcRotation(direction);
+        let vector = this.calcMoveRotation(direction);
         vector.x ? this.model.rotateX(vector.x) : {};
         vector.y ? this.model.rotateY(vector.y) : {};
         vector.z ? this.model.rotateY(vector.z) : {};
         //this.model.rotation.set(this.model.rotation.x + vector.x, this.model.rotation.y + vector.y, this.model.rotation.z + vector.z);
     }
 
-    private calcRotation(direction: Direction) {
+    private calcMoveRotation(direction: Direction) {
         let x = 0, y = 0, z = 0;
         switch(Game.curLevel)
         {
             case 'front':
                 switch(direction) {
                     case 'up':
-                        if (this.moveDirection == 'right')
+                        if (this.face == 'right')
                             x = Math.PI/2;
-                        if (this.moveDirection == 'left')
+                        if (this.face == 'left')
                             x = -Math.PI/2;
-                        if (this.moveDirection == 'down')
+                        if (this.face == 'down')
                             x = Math.PI;
                         break;
                     case 'down':
-                        if (this.moveDirection == 'right')
+                        if (this.face == 'right')
                             x = -Math.PI/2;
-                        if (this.moveDirection == 'left')
+                        if (this.face == 'left')
                             x = Math.PI/2;
-                        if (this.moveDirection == 'up')
+                        if (this.face == 'up')
                             x = Math.PI;
                         break;
                     case 'left':
-                        if (this.moveDirection == 'right')
+                        if (this.face == 'right')
                             x = Math.PI;
-                        if (this.moveDirection == 'up')
+                        if (this.face == 'up')
                             x = Math.PI/2;
-                        if (this.moveDirection == 'down')
+                        if (this.face == 'down')
                             x = -Math.PI/2;
                         break;
                     case 'right':
-                        if (this.moveDirection == 'left')
+                        if (this.face == 'left')
                             x = Math.PI;
-                        if (this.moveDirection == 'up')
+                        if (this.face== 'up')
                             x = -Math.PI/2;
-                        if (this.moveDirection == 'down')
+                        if (this.face == 'down')
                             x = Math.PI/2;
+                        break;
+                }
+                break;
+            // TODO: Остальные грани
+        }
+        this.face = direction;
+        return new THREE.Vector3(x, y, z);
+    }
+
+    private calcMoveVector() {
+        let x = 0, y = 0, z = 0;
+        switch(Game.curLevel)
+        {
+            case 'front':
+                switch(this.moveDirection) {
+                    case 'up':
+                        y = 1;
+                        break;
+                    case 'down':
+                        y = -1;
+                        break;
+                    case 'left':
+                        x = -1;
+                        break;
+                    case 'right':
+                        x = 1;
                         break;
                 }
                 break;

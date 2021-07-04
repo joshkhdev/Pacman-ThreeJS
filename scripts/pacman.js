@@ -1,8 +1,9 @@
-import { Entity, Objects, Params } from './entity.js';
+import { Objects, Params } from './levels.js';
+import { Entity, } from './entity.js';
 export class Pacman extends Entity {
     spawnCell;
-    constructor(i, j, direction) {
-        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+    constructor(i, j, face) {
+        super((i ? i : 0), (j ? j : 0), (face ? face : 'right'));
         Pacman.Size = 10;
         this.type = Objects.pacman;
     }

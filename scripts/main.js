@@ -1,8 +1,8 @@
 import * as THREE from './lib/three.module.js';
 import { OrbitControls } from './lib/orbit-controls.three.module.js';
 import { GLTFLoader } from './lib/gltf-loader.three.module.js';
+import { Params } from './levels.js';
 import { Game } from './game.js';
-import { Params } from './entity.js';
 
 // значение для canvas по умолчанию
 const fov = 75;
@@ -139,19 +139,15 @@ function animate() {
 const onKeyDown = function (event) {
     switch(event.keyCode) {
         case 87: // W
-            console.log('Pressed W');
             game.Pacman.startMovement('up')
             break;
         case 83: // S
-            console.log('Pressed S');
             game.Pacman.startMovement('down');
             break;
         case 65: // A
-            console.log('Pressed A');
             game.Pacman.startMovement('left');
             break;
         case 68: // D
-            console.log('Pressed D');
             game.Pacman.startMovement('right');
             break;
     }

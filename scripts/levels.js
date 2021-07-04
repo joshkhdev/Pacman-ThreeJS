@@ -1,4 +1,26 @@
-import { Params } from './entity.js';
+export var Objects;
+(function (Objects) {
+    Objects[Objects["blank"] = 0] = "blank";
+    Objects[Objects["wall"] = 1] = "wall";
+    //dynwall,
+    //spawnwall,
+    Objects[Objects["dot"] = 2] = "dot";
+    Objects[Objects["cherry"] = 3] = "cherry";
+    Objects[Objects["powerup"] = 4] = "powerup";
+    Objects[Objects["pacman"] = 5] = "pacman";
+    Objects[Objects["blinky"] = 6] = "blinky";
+    Objects[Objects["pinky"] = 7] = "pinky";
+    Objects[Objects["inky"] = 8] = "inky";
+    Objects[Objects["clyde"] = 9] = "clyde"; // 9
+})(Objects || (Objects = {}));
+export const Params = {
+    CellSize: 20,
+    CubeSize: 500,
+    WallSize: 18,
+    Depth: 20,
+    Rows: 25,
+    Cols: 25
+};
 const FrontLevel = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],

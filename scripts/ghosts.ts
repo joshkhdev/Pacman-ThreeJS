@@ -1,6 +1,6 @@
 import * as THREE from './lib/three.module.js';
-import { Entity, Objects, Params, Direction } from './entity.js';
-import { LevelType, MAP } from './levels.js';
+import { Objects, Params } from './levels.js';
+import { Entity, Direction } from './entity.js';
 
 export type GhostState = 'chase' | 'scatter' | 'fright';
 export type GhostName = 'Blinky' | 'Pinky' | 'Inky' | 'Clyde';
@@ -10,8 +10,8 @@ export abstract class Ghost extends Entity {
     public lastCell: { x: number, y: number };
     public lastObject: Objects;
     public spawnCell: { i: number, j: number };
-    protected constructor(i?: number, j?: number, direction?: Direction) {
-        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+    protected constructor(i?: number, j?: number) {
+        super((i? i : 0), (j? j : 0));
         this.spawnCell = { i: (i? i : 0), j: (j? j : 0) };
         Ghost.Size = 8;
     }
@@ -50,29 +50,29 @@ export abstract class Ghost extends Entity {
 }
 
 export class Blinky extends Ghost {
-    constructor(i?: number, j?: number, direction?: Direction) {
-        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+    constructor(i?: number, j?: number) {
+        super((i? i : 0), (j? j : 0));
         this.type = Objects.blinky;
     }
 }
 
 export class Pinky extends Ghost {
-    constructor(i?: number, j?: number, direction?: Direction) {
-        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+    constructor(i?: number, j?: number) {
+        super((i? i : 0), (j? j : 0));
         this.type = Objects.pinky;
     }
 }
 
 export class Inky extends Ghost {
-    constructor(i?: number, j?: number, direction?: Direction) {
-        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+    constructor(i?: number, j?: number) {
+        super((i? i : 0), (j? j : 0));
         this.type = Objects.inky;
     }
 }
 
 export class Clyde extends Ghost {
-    constructor(i?: number, j?: number, direction?: Direction) {
-        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+    constructor(i?: number, j?: number) {
+        super((i? i : 0), (j? j : 0));
         this.type = Objects.clyde;
     }
 }

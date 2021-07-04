@@ -1,5 +1,28 @@
 import * as THREE from './lib/three.module.js';
-import { Params } from './entity.js';
+
+export enum Objects {
+    blank, // 0
+    wall, // 1
+    //dynwall,
+    //spawnwall,
+    dot, // 2
+    cherry, // 3
+    powerup, // 4
+    pacman, // 5
+    blinky, // 6
+    pinky, // 7
+    inky, // 8
+    clyde // 9
+}
+
+export const Params = {
+    CellSize: 20,
+    CubeSize: 500,
+    WallSize: 18,
+    Depth: 20,
+    Rows: 25,
+    Cols: 25
+}
 
 export type LevelType = 'front' | 'back' | 'right' | 'left' | 'top' |'bottom';
 

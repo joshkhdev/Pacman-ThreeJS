@@ -1,6 +1,5 @@
 import * as THREE from './lib/three.module.js';
-import { MAP } from './levels.js';
-import { Objects, Params } from './entity.js';
+import { Objects, Params, MAP } from './levels.js';
 import { Pacman } from './pacman.js';
 import { Ghost, Blinky, Pinky, Inky, Clyde } from './ghosts.js';
 class Dot {

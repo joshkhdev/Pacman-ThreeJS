@@ -1,11 +1,11 @@
 import * as THREE from './lib/three.module.js';
-import { Direction, Entity, Objects, Params } from './entity.js';
-import { Game } from './game.js';
+import { Objects, Params } from './levels.js';
+import { Direction, Entity,  } from './entity.js';
 
 export class Pacman extends Entity {
     public spawnCell: { i: number, j: number };
-    constructor(i?: number, j?: number, direction?: Direction) {
-        super((i? i : 0), (j? j : 0), (direction? direction : 'none'));
+    constructor(i?: number, j?: number, face?: Direction) {
+        super((i? i : 0), (j? j : 0), (face? face : 'right'));
         Pacman.Size = 10;
         this.type = Objects.pacman;
     }

@@ -1,11 +1,12 @@
-import { Entity, Objects, Params } from './entity.js';
+import { Objects, Params } from './levels.js';
+import { Entity } from './entity.js';
 export class Ghost extends Entity {
     state;
     lastCell;
     lastObject;
     spawnCell;
-    constructor(i, j, direction) {
-        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+    constructor(i, j) {
+        super((i ? i : 0), (j ? j : 0));
         this.spawnCell = { i: (i ? i : 0), j: (j ? j : 0) };
         Ghost.Size = 8;
     }
@@ -29,26 +30,26 @@ export class Ghost extends Entity {
     }
 }
 export class Blinky extends Ghost {
-    constructor(i, j, direction) {
-        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+    constructor(i, j) {
+        super((i ? i : 0), (j ? j : 0));
         this.type = Objects.blinky;
     }
 }
 export class Pinky extends Ghost {
-    constructor(i, j, direction) {
-        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+    constructor(i, j) {
+        super((i ? i : 0), (j ? j : 0));
         this.type = Objects.pinky;
     }
 }
 export class Inky extends Ghost {
-    constructor(i, j, direction) {
-        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+    constructor(i, j) {
+        super((i ? i : 0), (j ? j : 0));
         this.type = Objects.inky;
     }
 }
 export class Clyde extends Ghost {
-    constructor(i, j, direction) {
-        super((i ? i : 0), (j ? j : 0), (direction ? direction : 'none'));
+    constructor(i, j) {
+        super((i ? i : 0), (j ? j : 0));
         this.type = Objects.clyde;
     }
 }
