@@ -1,64 +1,80 @@
 import * as THREE from './lib/three.module.js';
 import { Objects, Params } from './levels.js';
 import { Game } from './game.js';
+const PxInterval = 8;
+const StepInterval = 160;
 export class Entity {
-    StepInterval = 200;
     cell;
     moveDirection;
     face;
-    //public movement: { x: number, y: number }; // Непонятно, почему "движение" это X и Y
-    //public moveInterval?: any;
-    //public reqMove?: any;
-    //public animationTime: number; // Если это tween.js - рассмотреть удаление/замену
+    isMoving;
     posToMove;
     static Size;
     type;
     timer;
+    stepTimer;
     model;
     constructor(i, j, face) {
         this.cell = { i: (i ? i : 0), j: (j ? j : 0) };
         this.face = face ? face : 'none';
         this.moveDirection = 'none';
-        //this.movement = { x: 0, y: 0 };
     }
     startMovement(direction) {
         if (this.moveDirection == direction)
             return;
         if (!this.canMove(direction))
             return;
+        if (this.isMoving) {
+            // TODO: Починить повороты
+        }
         console.log(`Moving ${direction}`);
         if (this.type == Objects.pacman)
             this.faceDirecton(direction);
         this.moveDirection = direction;
         clearInterval(this.timer);
         this.timer = null;
-        this.timer = setInterval(() => {
-            this.step();
+        this.timer = setInterval(async () => {
+            await this.step();
             if (!this.canMove(direction))
                 clearInterval(this.timer);
-        }, this.StepInterval);
+        }, StepInterval);
     }
-    step() {
+    async step() {
+        let desIndex = { i: this.cell.i, j: this.cell.j };
         switch (this.moveDirection) {
             case 'up':
-                this.cell.i -= 1;
+                desIndex.i -= 1;
                 break;
             case 'down':
-                this.cell.i += 1;
+                desIndex.i += 1;
                 break;
             case 'left':
-                this.cell.j -= 1;
+                desIndex.j -= 1;
                 break;
             case 'right':
-                this.cell.j += 1;
+                desIndex.j += 1;
                 break;
         }
         let pos = this.model.position;
+        let des = this.getPointOnPlane(desIndex.i, desIndex.j);
         let delta = this.calcMoveVector();
-        delta.multiplyScalar(Params.CellSize);
-        pos.add(delta);
+        this.isMoving = true;
+        clearTimeout(this.stepTimer);
+        this.stepTimer = null;
+        this.stepTimer = setTimeout(function run() {
+            pos.add(delta);
+            if (!pos.equals(des)) {
+                clearTimeout(this.stepTimer);
+                this.stepTimer = setTimeout(run, PxInterval);
+            }
+            else {
+                clearTimeout(this.stepTimer);
+                this.isMoving = false;
+            }
+        }, PxInterval);
         if (this.type == Objects.pacman)
             this.eatDot();
+        this.cell = desIndex;
     }
     canMove(direction) {
         switch (direction) {
@@ -110,6 +126,7 @@ export class Entity {
             let index = Game.levelDots[Game.curLevel].indexOf(dot);
             Game.levelDots[Game.curLevel].splice(index, 1);
             dot.mesh.visible = false;
+            dot.mesh = null;
             Game.eat(dot.type);
         }
     }
@@ -170,16 +187,16 @@ export class Entity {
             case 'front':
                 switch (this.moveDirection) {
                     case 'up':
-                        y = 1;
+                        y = 2;
                         break;
                     case 'down':
-                        y = -1;
+                        y = -2;
                         break;
                     case 'left':
-                        x = -1;
+                        x = -2;
                         break;
                     case 'right':
-                        x = 1;
+                        x = 2;
                         break;
                 }
                 break;

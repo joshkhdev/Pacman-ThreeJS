@@ -4,30 +4,29 @@ import { Game } from './game.js';
 
 export type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
 
+const PxInterval = 8;
+const StepInterval = 160;
+
 interface Cell {
     i: number,
     j: number
 }
 
 export abstract class Entity { // Поменять public на private, создать get/set методы
-    private readonly StepInterval = 200;
     public cell: Cell;
     protected moveDirection: Direction;
     protected face: Direction;
-    //public movement: { x: number, y: number }; // Непонятно, почему "движение" это X и Y
-    //public moveInterval?: any;
-    //public reqMove?: any;
-    //public animationTime: number; // Если это tween.js - рассмотреть удаление/замену
+    protected isMoving: boolean;
     public posToMove?: THREE.Vector3;
     public static Size: number;
     public type: Objects;
     private timer: any;
+    private stepTimer: any;
     protected model: THREE.Group;
     protected constructor(i?: number, j?: number, face?: Direction) {
         this.cell = { i: (i? i : 0), j: (j? j : 0) };
         this.face = face? face : 'none';
         this.moveDirection = 'none';
-        //this.movement = { x: 0, y: 0 };
     }
 
     public startMovement(direction: Direction) {
@@ -35,42 +34,63 @@ export abstract class Entity { // Поменять public на private, созд
             return;
         if (!this.canMove(direction))
             return;
+        if (this.isMoving) {
+            // TODO: Починить повороты
+        } 
         console.log(`Moving ${direction}`);
         if (this.type == Objects.pacman)
             this.faceDirecton(direction);
         this.moveDirection = direction;
         clearInterval(this.timer);
         this.timer = null;
-        this.timer = setInterval(() => {
-            this.step();
+        this.timer = setInterval(async () => {
+            await this.step();
             if (!this.canMove(direction))
                 clearInterval(this.timer);
-        }, this.StepInterval);
+        }, StepInterval);
     }
 
-    private step() {
+    private async step() { // TODO: Починить повороты
+        let desIndex = { i: this.cell.i, j: this.cell.j };
+        
         switch(this.moveDirection) {
             case 'up':
-                this.cell.i -= 1;
+                desIndex.i -= 1;
                 break;
             case 'down':
-                this.cell.i += 1;
+                desIndex.i += 1;
                 break;
             case 'left':
-                this.cell.j -= 1;
+                desIndex.j -= 1;
                 break;
             case 'right':
-                this.cell.j += 1;
+                desIndex.j += 1;
                 break;
         }
-
         let pos = this.model.position;
+        let des = this.getPointOnPlane(desIndex.i, desIndex.j);
         let delta = this.calcMoveVector();
-        delta.multiplyScalar(Params.CellSize);
-        pos.add(delta);
+
+        this.isMoving = true;
+
+        clearTimeout(this.stepTimer);
+        this.stepTimer = null;
+        this.stepTimer = setTimeout(function run() {
+            pos.add(delta);
+            if (!pos.equals(des)) {
+                clearTimeout(this.stepTimer);
+                this.stepTimer = setTimeout(run, PxInterval);
+            } else {
+                clearTimeout(this.stepTimer);
+                this.isMoving = false;
+            }
+                
+        }, PxInterval);
 
         if (this.type == Objects.pacman)
             this.eatDot();
+
+        this.cell = desIndex;
     }
 
     public canMove(direction: Direction): boolean {
@@ -120,6 +140,7 @@ export abstract class Entity { // Поменять public на private, созд
             let index = Game.levelDots[Game.curLevel].indexOf(dot);
             Game.levelDots[Game.curLevel].splice(index, 1);
             dot.mesh.visible = false;
+            dot.mesh = null;
             Game.eat(dot.type);
         }
     }
@@ -198,16 +219,16 @@ export abstract class Entity { // Поменять public на private, созд
             case 'front':
                 switch(this.moveDirection) {
                     case 'up':
-                        y = 1;
+                        y = 2;
                         break;
                     case 'down':
-                        y = -1;
+                        y = -2;
                         break;
                     case 'left':
-                        x = -1;
+                        x = -2;
                         break;
                     case 'right':
-                        x = 1;
+                        x = 2;
                         break;
                 }
                 break;

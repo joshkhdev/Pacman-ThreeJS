@@ -119,7 +119,6 @@ export class Game {
     public Pinky: Pinky;
     public Inky: Inky;
     public Clyde: Clyde;
-    private sides = [ 'front', 'back', 'right', 'left', 'top', 'bottom' ];
     private static planes = {};
 
     constructor() {
@@ -191,7 +190,7 @@ export class Game {
         let geometry = new THREE.PlaneGeometry(Params.CubeSize, Params.CubeSize);
         let material = new THREE.MeshStandardMaterial({color: 0xffffff, transparent: true, opacity: 0.0 });
 
-        for (let side of this.sides)
+        for (let side in Game.map)
         {
             let offset = { // Добавление дополнительного смещения в половину высоты стены
                 x: Game.map[side].offset.x ? (Game.map[side].offset.x > 0 ? Game.map[side].offset.x + Params.Depth/2 : Game.map[side].offset.x - Params.Depth/2) : 0,
@@ -205,15 +204,13 @@ export class Game {
 
         this.loadDots();
 
-        this.sides.forEach(side => {
+        for (let side in Game.map)
             for (let dot of Game.levelDots[side])
                 Game.planes[side].add(dot.mesh);
-        });
-
+            
         let planesArray = [];
-        this.sides.forEach(side => {
+        for (let side in Game.map) 
             planesArray.push(Game.planes[side]);
-        });
         return planesArray;
     }
 
