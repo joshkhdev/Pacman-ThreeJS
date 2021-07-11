@@ -78,7 +78,7 @@ export class Pacman extends Entity {
                 break;
         }
         let pos = this.model.position;
-        let des = Game.getPointOnPlane(desIndex.i, desIndex.j, Game.curLevel);
+        //let des = Game.getPointOnPlane(desIndex.i, desIndex.j, Game.curLevel);
         let delta = this.calcMoveVector();
 
         this.isMoving = true;
