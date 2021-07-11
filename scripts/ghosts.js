@@ -1,6 +1,5 @@
 import { Objects, Params } from './levels.js';
 import { Entity } from './entity.js';
-import { Game } from './game.js';
 const PxInterval = 8;
 const StepInterval = 160;
 export class Ghost extends Entity {
@@ -44,7 +43,6 @@ export class Blinky extends Ghost {
             return;
         if (!this.canMove(direction))
             return;
-        console.log(`Moving ${direction}`);
         this.moveDirection = direction;
         clearInterval(this.timer);
         this.timer = null;
@@ -71,22 +69,22 @@ export class Blinky extends Ghost {
                 break;
         }
         let pos = this.model.position;
-        let des = Game.getPointOnPlane(desIndex.i, desIndex.j, Game.curLevel);
         let delta = this.calcMoveVector();
         this.isMoving = true;
-        clearTimeout(this.stepTimer);
+        delta.multiplyScalar(Params.CellSize / 2);
+        pos.add(delta);
+        /*clearTimeout(this.stepTimer);
         this.stepTimer = null;
         this.stepTimer = setTimeout(function run() {
             pos.add(delta);
             if (!pos.equals(des)) {
                 clearTimeout(this.stepTimer);
                 this.stepTimer = setTimeout(run, PxInterval);
-            }
-            else {
+            } else {
                 clearTimeout(this.stepTimer);
                 this.isMoving = false;
             }
-        }, PxInterval);
+        }, PxInterval);*/
         this.cell = desIndex;
     }
 }

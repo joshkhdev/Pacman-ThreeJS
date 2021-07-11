@@ -64,6 +64,7 @@ export abstract class Entity { // Поменять public на private, созд
                 } else {
                     return this.checkCell(this.cell.i - 1, this.cell.j);
                 }
+                
             case 'down':
                 if (this.cell.i == Params.CubeSize / Params.CellSize - 1) {
                     return false;

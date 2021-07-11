@@ -312,10 +312,10 @@ export class Game {
                         counter++;
                     }
                 }
-                if (counter >= 2) {
+                if (counter >= 1) {
                     let min = Math.min(left, right, up, down);
                     if (min == Infinity) {
-                        // Продолжаем движение в том же направлении
+                        console.error(Infinity);
                     }
                     else {
                         switch (min) {
@@ -343,6 +343,7 @@ export class Game {
                                     this.Blinky.startMovement('right');
                                     break;
                                 }
+                            default:
                         }
                     }
                 }

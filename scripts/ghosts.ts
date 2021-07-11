@@ -55,8 +55,6 @@ export class Blinky extends Ghost {
             return;
         if (!this.canMove(direction))
             return;
-        
-        console.log(`Moving ${direction}`);
         this.moveDirection = direction;
         
         clearInterval(this.timer);
@@ -85,12 +83,13 @@ export class Blinky extends Ghost {
                 break;
         }
         let pos = this.model.position;
-        let des = Game.getPointOnPlane(desIndex.i, desIndex.j, Game.curLevel);
         let delta = this.calcMoveVector();
 
         this.isMoving = true;
 
-        clearTimeout(this.stepTimer);
+        delta.multiplyScalar(Params.CellSize/2);
+        pos.add(delta);
+        /*clearTimeout(this.stepTimer);
         this.stepTimer = null;
         this.stepTimer = setTimeout(function run() {
             pos.add(delta);
@@ -101,7 +100,7 @@ export class Blinky extends Ghost {
                 clearTimeout(this.stepTimer);
                 this.isMoving = false;
             }
-        }, PxInterval);
+        }, PxInterval);*/
 
         this.cell = desIndex;
     }

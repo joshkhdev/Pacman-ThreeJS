@@ -47,7 +47,7 @@ export class Pacman extends Entity {
             // TODO: Починить повороты
         } 
         
-        console.log(`Moving ${direction}`);
+        //console.log(`Moving ${direction}`);
         this.faceDirecton(direction);
         this.moveDirection = direction;
 
@@ -83,7 +83,9 @@ export class Pacman extends Entity {
 
         this.isMoving = true;
 
-        clearTimeout(this.stepTimer);
+        delta.multiplyScalar(Params.CellSize/2);
+        pos.add(delta);
+        /*clearTimeout(this.stepTimer);
         this.stepTimer = null;
         this.stepTimer = setTimeout(function run() {
             pos.add(delta);
@@ -95,7 +97,7 @@ export class Pacman extends Entity {
                 this.isMoving = false;
             }
                 
-        }, PxInterval);
+        }, PxInterval);*/
 
         this.eatDot();
         this.cell = desIndex;
@@ -149,7 +151,6 @@ export class Pacman extends Entity {
         vector.x ? this.model.rotateX(vector.x) : {};
         vector.y ? this.model.rotateY(vector.y) : {};
         vector.z ? this.model.rotateY(vector.z) : {};
-        //this.model.rotation.set(this.model.rotation.x + vector.x, this.model.rotation.y + vector.y, this.model.rotation.z + vector.z);
     }
 
     private calcModelRotation(direction: Direction) {

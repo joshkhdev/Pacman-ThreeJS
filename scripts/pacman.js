@@ -39,7 +39,7 @@ export class Pacman extends Entity {
         if (this.isMoving) {
             // TODO: Починить повороты
         }
-        console.log(`Moving ${direction}`);
+        //console.log(`Moving ${direction}`);
         this.faceDirecton(direction);
         this.moveDirection = direction;
         clearInterval(this.timer);
@@ -70,19 +70,21 @@ export class Pacman extends Entity {
         let des = Game.getPointOnPlane(desIndex.i, desIndex.j, Game.curLevel);
         let delta = this.calcMoveVector();
         this.isMoving = true;
-        clearTimeout(this.stepTimer);
+        delta.multiplyScalar(Params.CellSize / 2);
+        pos.add(delta);
+        /*clearTimeout(this.stepTimer);
         this.stepTimer = null;
         this.stepTimer = setTimeout(function run() {
             pos.add(delta);
             if (!pos.equals(des)) {
                 clearTimeout(this.stepTimer);
                 this.stepTimer = setTimeout(run, PxInterval);
-            }
-            else {
+            } else {
                 clearTimeout(this.stepTimer);
                 this.isMoving = false;
             }
-        }, PxInterval);
+                
+        }, PxInterval);*/
         this.eatDot();
         this.cell = desIndex;
     }
@@ -132,7 +134,6 @@ export class Pacman extends Entity {
         vector.x ? this.model.rotateX(vector.x) : {};
         vector.y ? this.model.rotateY(vector.y) : {};
         vector.z ? this.model.rotateY(vector.z) : {};
-        //this.model.rotation.set(this.model.rotation.x + vector.x, this.model.rotation.y + vector.y, this.model.rotation.z + vector.z);
     }
     calcModelRotation(direction) {
         let x = 0, y = 0, z = 0;
