@@ -1,15 +1,17 @@
 {
-  "name": "PacmanThreeJS",
+  "name": "pacman-three-js",
   "version": "1.0.0",
   "description": "",
   "dependencies": {
     "json-server": "^0.16.3",
-    "npm-run-all": "^4.1.5"
+    "light-server": "^2.9.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "npm-run-all -p -r start-front start-database start-ts",
-    "start:dev": "npm-run-all -p -r start-front start-database",
+    "start": "npm-run-all -p -r start-front start-database",
+    "start:dev": "npm-run-all -p -r start-front start-database start-ts",
     "start-front": "light-server -s . -p 8080 -o",
     "start-database": "json-server --watch database/db.json",
     "start-ts": "tsc"

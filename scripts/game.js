@@ -107,8 +107,8 @@ export class Game {
     }
     findObjects(object, grid) {
         let array = [];
-        for (let i = 0; i < Params.CubeSize / Params.CellSize; i++)
-            for (let j = 0; j < Params.CubeSize / Params.CellSize; j++)
+        for (let i = 0; i < Params.Rows; i++)
+            for (let j = 0; j < Params.Cols; j++)
                 if (grid[i][j] == object)
                     array.push({ i: i, j: j });
         return array;
